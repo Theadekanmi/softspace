@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoftSpace</title>
+
+    <!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Font Awesome (for icons: fab, fas, etc.) -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+
+<!-- (Optional) Google Font for a softer aesthetic -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+
+<!-- My CSS -->
+<link rel="stylesheet" href="soft.css">
+</head>
+<body>
+
+<header class="header-default"> 
+<nav class="navbar navbar-expand-lg fixed-top" style="background-color: #5C3D2E;">
+
+
+    <div class="container-xl">
+      <!-- Logo -->
+      <a class="navbar-brand fw-bold logo-text" href="#">SOFTSPACE</a>
+
+      <!-- Burger Menu -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+        aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Navbar links -->
+      <div class="collapse navbar-collapse" id="navbarContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link fw-bold" href="#hero">Home</a></li>
+          <li class="nav-item"><a class="nav-link fw-bold" href="#chronicles">The Journey</a></li>
+          <li class="nav-item"><a class="nav-link fw-bold" href="#articles">Stories</a></li>
+          <li class="nav-item"><a class="nav-link fw-bold" href="#topics">Topics</a></li>
+          <li class="nav-item"><a class="nav-link fw-bold" href="#the-goal">The Goal</a></li>
+          <li class="nav-item"><a class="nav-link fw-bold" href="#reach-out">Contact</a></li>
+        </ul>
+
+        <!-- Right side: social icons + search -->
+        <div class="d-flex align-items-center ms-lg-3">
+          <ul class="social-icons list-unstyled list-inline mb-0 me-3">
+            <li class="list-inline-item"><a href="#"><i class="fab fa-instagram"></i></a></li>
+            <li class="list-inline-item"><a href="#"><i class="fab fa-pinterest"></i></a></li>
+            <li class="list-inline-item"><a href="#"><i class="fab fa-youtube"></i></a></li>
+          </ul>
+
+          <div class="d-flex gap-2">
+            <button class="btn btn-search"><i class="fas fa-search"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<section id="hero" class="py-5">
+  <div class="container-xl">
+    <div class="row gy-4">
+
+      <!-- Featured Post Large -->
+      <div class="col-lg-8 position-relative">
+        <div class="post featured-post-lg rounded shadow overflow-hidden">
+          <!-- Image -->
+          <img src="./Images/IMG_7674.jpeg" alt="Featured Image" class="img-fluid w-100" style="height: 400px; object-fit: cover;">
+
+          <!-- Gradient Overlay -->
+          <div class="overlay position-absolute top-0 start-0 w-100 h-100"></div>
+
+          <!-- Text overlay -->
+          <div class="details position-absolute text-white" style="bottom: 20px; left: 20px;">
+            <h2 class="fs-1 fw-bold h2-text">Your Permission to Be Human</h2>
+            <p class="p-text">To Be Held, Heard, and Deeply Loved</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar Tabs -->
+      <div class="col-lg-4">
+        <div class="post-tabs rounded shadow p-3 bg-white">
+
+          <!-- Tabs nav -->
+          <ul class="nav nav-pills mb-3" id="postTab" role="tablist">
+            <li class="nav-item flex-fill" role="presentation">
+              <button class="nav-link active w-100 fw-bold" id="popular-tab" data-bs-toggle="tab" data-bs-target="#popular" type="button" role="tab" aria-controls="popular" aria-selected="true">
+                You Matter
+              </button>
+            </li>
+            <li class="nav-item flex-fill" role="presentation">
+              <button class="nav-link w-100 fw-bold" id="recent-tab" data-bs-toggle="tab" data-bs-target="#recent" type="button" role="tab" aria-controls="recent" aria-selected="false">
+                Made For More
+              </button>
+            </li>
+          </ul>
+
+          <!-- Tabs content -->
+          <div class="tab-content" id="postsTabContent">
+
+            <!-- Popular Posts -->
+            <div class="tab-pane fade show active" id="popular" role="tabpanel" aria-labelledby="popular-tab">
+              <blockquote class="affirmation">"She believed she could, so she did."</blockquote>
+              <blockquote class="affirmation">"Your dreams are valid, and so are you."</blockquote>
+              <blockquote class="affirmation">"Your body is not an apology."</blockquote>
+              <blockquote class="affirmation">"The woman you are becoming will cost you people."</blockquote>
+            </div>
+
+            <!-- Recent Posts -->
+            <div class="tab-pane fade" id="recent" role="tabpanel" aria-labelledby="recent-tab">
+              <blockquote class="affirmation">"You are enough, even on your worst days."</blockquote>
+              <blockquote class="affirmation">"You are allowed to take up space"</blockquote>
+              <blockquote class="affirmation">"You are more than enough, more than they expected."</blockquote>
+              <blockquote class="affirmation">"Own Your Becoming"</blockquote>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="chronicles" class="main-content py-5">
+  <div class="container-xl">
+    <div class="row gy-5">
+
+      <!-- Section Header -->
+      <div class="col-12 text-center mb-0">
+        <h2 class="fs-1 fw-bolder text-brown">The Chronicles</h2>
+        <p class="text-muted fst-italic">
+     Unveiling the truths we carry, in voices unfiltered.
+        </p>
+      </div>
+
+      <!-- Chronicle Entries -->
+      <div class="col-12">
+        <div class="chronicles-container row gy-4">
+
+          <!-- Chronicle Item -->
+          <div class="col-12">
+            <div class="chronicle-box position-relative p-4 rounded-4 bg-light shadow-sm border-start border-3 border-brown">
+              <span class="chronicle-date">Dear mum ✦</span>
+              <p class="mb-0 fst-italic lh-lg text-secondary">
+                “The price of motherhood is becoming too severe to pay. 
+                The moment you became a mother, your brain rewires itself completely: 
+                you literally think differently, prioritize differently, exist differently. Please don't forget you are human too”
+              </p>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="chronicle-box position-relative p-4 rounded-4 bg-light shadow-sm border-start border-3 border-brown">
+              <span class="chronicle-date">Dear BFFs ✦</span>
+              <p class="mb-0 fst-italic lh-lg text-secondary">
+                “The conflict in friendships is not talked about enough. Adult female friendships 
+                are the most complex relationships you'll navigate. We're competing for the 
+                same promotions while desperately needing each other's support.”
+              </p>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="chronicle-box position-relative p-4 rounded-4 bg-light shadow-sm border-start border-3 border-brown">
+              <span class="chronicle-date">Hi girl, welcome to womanhood ✦</span>
+              <p class="mb-0 fst-italic lh-lg text-secondary">
+                “You've lived with irregular periods for years thinking it's normal. PCOS, 
+                endometriosis, thyroid issues, conditions affecting millions of women 
+                remain undiagnosed because ‘women’s problems’ aren’t research priorities. It's heartbreaking”
+              </p>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="chronicle-box position-relative p-4 rounded-4 bg-light shadow-sm border-start border-3 border-brown">
+              <span class="chronicle-date">You are enough ✦</span>
+              <p class="mb-0 fst-italic lh-lg text-secondary">
+                “Body Shaming: You learn to hate your own body, see perfection in every other person but you. 
+                Beauty standards are slowly killing you, the need to be a size 8 and suddenly everybody is fatphobic.  Don't let the world
+                make you hate YOU”
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<section id="articles">
+  <div style="margin: 25px 20px 20px 20px;">
+
+  <!-- Section Header -->
+  <div class="text-center mb-4">
+    <h2 class="h2-text" style="color:#5C3D2E; font-weight: 800; font-family:'Playfair Display', serif;"> Your Breathing Space
+    </h2>
+    <p class="card-text">A Community to Hold You.</p>
+  </div>
+
+<!-- first Article Preview Card -->
+<div class="post-preview mb-3" data-bs-toggle="modal" data-bs-target="#article1Modal" style="cursor:pointer;">
+    <div class="card-body">
+        <h5 class="card-title" style="font-size: 23px; margin-bottom: 8px; font-family:Georgia, 'Times New Roman', Times, serif;">The Woman in The Mirror</h5>
+        <p class="card-text">
+            Hey love, you’re safe now, trust me. It’s just you and me, no perfect picture…
+        </p>
+        <span class="link-text text-decoration-none fw-bolder">There's more...</span>
+    </div>
+</div>
+
+<!-- Modal for first Article -->
+<div class="modal fade" id="article1Modal" tabindex="-1" aria-labelledby="article1ModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="article1ModalLabel" style="font-weight: 800; font-size: 25px;">The Woman in The Mirror</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <p style="font-size: 20px;">
+                    Hey love,<br>
+                    You’re safe now, It's just You and Me.<br><br>
+
+                    I see you, scrolling through pictures of yourself, how many more of your pictures will be deleted because you think you look "wrong" somehow.<br><br>
+
+                    Take a moment to breathe!!<br><br>
+
+                    I know you're tired;<br>
+                    Tired of sucking in your stomach every time someone takes a photo<br>
+                    Tired of changing outfits five times before you leave the house.<br>
+                    Tired of that voice in your head that never, ever gives you a break.<br>
+                    Tired of the mirror that seems to mock you every time you look at it.<br><br>
+
+                    I am familiar with the feeling of exhaustion. The constant pressure to be perfect, to look a certain way, to fit into a mold that was never 
+                    made for you. I know because I have been there myself.<br><br>
+
+                    I was eight. Just eight and a person, a grown-up, looked at me and said
+                    <div class="affirmation">
+                        <strong>'You are a fine girl o but you just need to lose some weight, you look bigger than your age.'</strong>
+                    </div>
+
+                    I had no idea what that meant, and that's the cruelest part. They took my simple, childlike ignorance and turned it into shame. 
+                    All I knew was that my body was suddenly a mistake, a source of embarrassment. They made me feel bad for simply existing, 
+                    for taking up space, and that feeling, that deep sense of being wrong, has never truly left.<br><br>
+
+                    Mirrors suddenly became my enemy.<br>
+                    The glass wasn’t for looking; it was for torture. I would perform a daily routine of silent war against my own reflection, 
+                    a constant search for new things to hate about myself.<br><br>
+
+                    One day, I was just too tired to fight. The exhaustion wasn't physical; it was bone-deep from years of battling my own reflection. 
+                    I stared at the girl in the mirror, and a different question left my lips: "Girl, what are we doing here?"<br><br>
+
+                    <div class="affirmation">
+                        <strong>Your body is not a burden, Your body is home.</strong>
+                    </div>
+
+                    I looked at her, really looked at her, and for the first time, I saw something else:<br>
+                    I saw the scars from the battles she fought,<br>
+                    The stretch marks that told stories of growth,<br>
+                    The tired eyes that had seen too much, the smile that had been forced too many times.<br>
+                    I saw the late nights she spent crying over her perceived flaws,<br>
+                    The early mornings she woke up to face a world that seemed to demand perfection.<br><br>
+
+                    I saw a body that had been through so much, yet still stood strong, still fought for me every single day. 
+                    That's when it hit me: the body I was fighting had been fighting for me all along.<br><br>
+
+                    <div class="affirmation">
+                        <strong>"50% of 13-year-old girls are unhappy with their bodies, and that number jumps to 80% by age 17. 
+                        Baby, we're all walking around carrying wounds that were never ours to carry."</strong>
+                    </div>
+
+                    We're all just girls, trying to exist in bodies that the world taught us to criticize before we even learned to love them, 
+                    so please I beg you, BREATHE!<br><br>
+
+                    Your "flaws"? The things you hate about yourself? They're probably the exact things that make you unforgettable.<br><br>
+
+                    So let's do something different, shall we? Next time you look at her and I know there will be a next time, try something different.<br><br>
+
+                    <div class="affirmation">
+                        <strong>Look at her and say, "I see you. I love you. I accept you."</strong>
+                    </div>
+
+                    Instead of finding what's wrong, find what's survived. 
+                    Look at the hands that have worked so hard.<br>
+                    The shoulders that have carried so much. The face that has smiled through pain and cried through healing.<br>
+                    She's been waiting for you to be kind to her.<br>
+                    She's been waiting for you to come home.<br><br>
+
+                    Come sit with me whenever the mirror gets loud again. I'll be here, reminding you of what's true.<br><br>
+
+                    <div class="affirmation">
+                        <strong>You are not broken. You are not alone. You are beautiful. You are loved. 
+                        You're perfect exactly as you are right now — not when you change, not when you fix yourself, right now. You are enough.</strong>
+                    </div><br>
+
+                    I Love Always, All Ways.<br>
+                    Now wipe those tears, beautiful. You've your best life to live.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- second Article Preview -->
+<div class="post-preview mb-3" data-bs-toggle="modal" data-bs-target="#article2Modal" style="cursor:pointer;">
+  <div class="card-body">
+        <h5 class="card-title" style="font-size: 22px; margin-bottom: 8px;font-family:Georgia, 'Times New Roman', Times, serif;">
+           The Audacity to Begin</h5>
+        <p class="card-text">
+        When will you finally give yourself permission to start?...  </p>
+        <span class="link-text text-decoration-none fw-bolder">Still waiting?...</span>
+    </div>
+</div>
+
+<!-- Modal for Second Article -->
+<div class="modal fade" id="article2Modal" tabindex="-1" aria-labelledby="article2ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="article2ModalLabel" style="font-weight: 800; font-size: 23px;">The Audacity to Begin</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <p style="font-size: 18px;">
+I want you to imagine a quiet room. Not a room in a house, but a room inside yourself. For a long time, I lived in that room. It was 
+comfortable, familiar. I could see the world through a window; a big, bright window showing people living their lives, doing incredible 
+things and I would watch them.
+<br><br>
+
+I'd watch ladies my age and younger launch businesses, publish books, and speak on stages just like this, and I’d tell myself, 
+<div class="affirmation"><strong>"I'll do that someday."</strong></div>
+
+I was a spectator in my own life, an intelligent, capable woman paralyzed by the fear of failure.<br><br>
+
+My fear wasn't a monster. It never screamed at me. It just whispered. It told me I wasn't ready. That my idea wasn't 
+perfect yet. It said, "wait until things slow down." It was a constant, gentle muttering of "later,." and in that quiet room, 
+I believed it. 
+<br><br>
+
+I was waiting for the perfect moment to step out of the shadows, for a permission slip that never came.
+But one day, the whisper changed. <br><br>
+
+I was scrolling on my phone, watching yet another woman a few years younger than me, celebrate a milestone I had only ever dreamed of. And for the first time, a different thought came to me. 
+
+<br><br>
+It wasn't "I wish I could do that." It was, "I am doing that. My future self is already doing that, and she's waiting for me to catch up."
+I realized that the only thing standing between me and that future was my own fear. Fear of judgment, fear of failure, fear of not being enough. But what if I was enough? What if I had been enough all along?
+
+<br><br>
+That was my turning point. Not a grand heroic leap, but a quiet, internal decision. I closed the app. I put the phone down. And I opened a
+ blank document. I wrote down one single business idea that had been collecting dust in my mind for years. It was messy, it was imperfect,
+  and it was a terrifying first step. But in that moment, I realized something:
+  
+  <div class="affirmation"><strong>the courage wasn't about the absence of fear, it was simply the decision to act anyway.</strong></div>
+
+We spend so much time believing that change means becoming someone new. We think we have to find a different person inside 
+ourselves—someone who is naturally fearless, naturally a CEO. But that's not what this is about. This is about revealing who you were 
+always meant to be. 
+<br><br>
+The woman you are waiting to become is already there. She’s been there all along, tapping her fingers impatiently, waiting for you to 
+stop looking for permission and start. Your biggest competitor isn’t that woman on LinkedIn. It’s the version of yourself who says, "maybe next year." 
+That is the only obstacle between you and the life you want to build.
+<br><br>
+So, this is my final word to you. 
+
+<div class="affirmation"><strong>Stop waiting for the perfect moment. Stop waiting for all the answers. Your first step will be imperfect.
+Your first attempt will feel awkward. But that messy beginning is better than a perfect "never-started."</strong></div>
+
+The time is now. Not when you feel ready. Not when conditions are perfect. Now.
+Because the audacity to begin isn’t about being fearless—it's about being afraid and starting anyway.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- third Article Preview -->
+<div class="post-preview mb-3" data-bs-toggle="modal" data-bs-target="#article3Modal" style="cursor:pointer;">
+  <div class="card-body">
+        <h5 class="card-title" style="font-size: 21px; margin-bottom: 8px;font-family:Georgia, 'Times New Roman', Times, serif;">
+           The Unspoken Politics of Female Friendships</h5>
+        <p class="card-text">
+        Welcome to the beautiful, brutal world of female friendship. The sisterhood we celebrate is often the most complicated...</p>
+        <span class="link-text text-decoration-none fw-bolder">Read on...</span>
+    </div>
+</div>
+
+<!-- Modal for Third Article -->
+<div class="modal fade" id="article3Modal" tabindex="-1" aria-labelledby="article3ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="article3ModalLabel" style="font-weight: 800; font-size: 22px;">The Unspoken Politics of Female Friendships</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+<p style="font-size: 18px;">
+Now to what we all know but rarely admit. We’re told that female friendship, this beautiful sisterhood, should come naturally to us. 
+But in the quiet moments, we know it's often the most complicated relationship we have.
+<br><br>
+
+You've felt it, haven't you? The silence in the group chat after you share your good news. The photo posted without you, a digital wound disguised as a memory. 
+You’ve lived it in the subtle competition, the compliments that feel like comparisons, the love that sometimes feels like a contract.
+<br><br>
+
+We need to have the conversation no one wants to have. The one where we admit that female friendship, the thing we’re supposed to be naturally good at, 
+the sisterhood we’re told to celebrate – is often the most complicated relationship in our lives.
+<br><br>
+
+<div class="affirmation"><strong>"During a conversation with Emmanuella Theophilus, she told me about a crush she loved but instead went for her friend, she said 'Strangely, it didn’t hurt, it was actually hilarious, 
+and I actively encouraged her to go for him. This was because I reminded myself that my self-worth isn’t tied to who someone chooses, and my friendships aren’t battlefields.'"</strong></div>
+<br>
+
+That stayed with me for hours after our conversation. This isn’t about being a bad woman. It’s about being a human woman in a world that taught us scarcity. We mastered the art of the backhanded compliment, 
+the strategic silence, the subtle wound that couldn't be called out without us seeming "too sensitive." We traded authenticity for acceptance, and it was costing us our peace.
+<br><br>
+
+We were not born into jealousy; it was a language we learned. <div class="affirmation"><strong>Esther Ikegwuonu, speaking about her close roommate friendship, 
+shared that her friend made her realize the importance of friendship and they became literally the closest afterwards.”</strong></div> 
+
+Right from the early stages of our lives, we unconsciously learned comparison beautifuly. At five, they compared us in matching dresses. At fifteen, they ranked us against each other for a boy’s attention. 
+At twenty-five we were checking who got married first. By thirty-five, we’re pitting our careers against a friend’s success. We were raised on the myth that there was only one seat at the table, one spotlight, one finish line.
+<br><br>
+
+At some point, I had to face the scariest part and learn again but this time, "the truth": that the same scarcity mindset poisoning my 
+friendships was the very same one holding me back in my own life.
+<br>
+
+<div class="affirmation"><strong>Jane Fonda once said, "Women's friendships are like a renewable source of power."</strong></div>
+They speak life into your soul, in ways you never knew you needed. 
+
+True change isn't about becoming a new person. It’s about revealing the person you were always meant to be. 
+The person who doesn't see another woman's light as a threat. The person who understands that her self-worth isn’t tied to who someone chooses, 
+and that her friendships are not battlefields.
+<br>
+
+ <div class="affirmation"><strong>The scarcity was always a lie. There is a whole universe of room for all of us to be beautiful, 
+    to be successful, to be happy, without dimming someone else's light.</strong></div> 
+
+The revolution starts with us. We can’t change the world that taught us to compete, but we can change how we show up for each other. 
+<br>
+
+Real sisterhood isn't pretty. It's not matching outfits and wine nights (though those are nice too). 
+<br><br>
+Real sisterhood is:
+- Holding space for each other's messiness<br>
+- Celebrating each other's success without keeping scores<br>
+- Protecting each other's dreams instead of judging them<br>
+- Showing up consistently, especially when it's hard<br><br>
+
+It's choosing connection over competition, even when competition feels safer.We can choose to break the cycles of competition 
+and create cultures of connection. <div class="affirmation"><strong>"A friend is a gift you give yourself."</strong></div>
+
+Ask yourself these questions about each close friendship:<br>
+Do I feel more myself or less myself around her?<br>
+Can I share vulnerability without it becoming ammunition later?<br>
+Do I trust her with my dreams, or do I protect them from her judgment?<br>
+Do I feel like I can be honest about my struggles without her making it about her?<br>
+Do I feel like I can celebrate my wins without her feeling threatened?<br>
+Am I competing with her or collaborating with her?<br>
+
+<br>
+If these questions make you uncomfortable, that's enough information to make you decide, Break the Cycle.
+
+You can choose to be the friend who makes other women feel seen, supported, and celebrated. 
+It's complicated because we're complicated. It's intense because we're intense. It's sometimes painful because we're human, but when it's right, when it's real, there's nothing like it.
+<br>
+
+<div class="affirmation"><strong>The sisterhood we want is not the one we were promised. 
+But we can build it, brick by brick, with intention and love. It's the one where we choose to be vulnerable, to be honest, to be real with each other.
+<br><br>
+
+One authentic connection at a time. It doesn't have to be perfect to be powerful. It just has to be real.</strong></div>
+<br>
+
+Over to you sis, what kind of friend will you choose to be today?
+</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Artilce four preview Page -->
+<div class="post-preview mb-3" data-bs-toggle="modal" data-bs-target="#article4Modal" style="cursor:pointer;">
+  <div class="card-body">
+ <h5 class="card-title" style="font-size: 21px; margin-bottom: 8px;font-family:Georgia, 'Times New Roman', Times, serif;">The Dismissal of Women's Pain</h5>
+         <p class="card-text">Women’s bodies are often misunderstood, dismissed, and gaslit. From postpartum recovery to chronic conditions...</p>
+        <span class="link-text text-decoration-none fw-bolder">Dive deeper...</span>
+    </div>
+</div>
+
+<!-- Modal for Fourth Article -->
+<div class="modal fade" id="article4Modal" tabindex="-1" aria-labelledby="article4ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="article4ModalLabel" style="font-weight: 800; font-size: 22px;">The Female Health Gap – The Shame and Stigma of Reproductive Health</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+<p style="font-size: 18px;">
+The female body is often hailed as a marvel of nature, a biological masterpiece. Yet, for many women, it can feel more like a house under constant, ignored construction; 
+a place where the foundation is shifting and the walls whisper secrets no one wants to hear. This is the reality of navigating a healthcare system where women's bodies 
+are frequently misunderstood, dismissed, and gaslit.
+<br><br>
+
+For months after giving birth, many women carry in silence the struggle with their postpartum bodies. The exhaustion, the changes in shape, the pelvic discomfort, and the hair loss 
+are often dismissed as "normal" and something to just get over. While they smile for photos and tell everyone they are "fine," inside they wonder if they will ever feel like themselves again. 
+It often takes immense courage to finally speak up, even to other women, and realize that their experience is not a weakness but a critical phase of recovery that deserves comprehensive care.
+<br><br>
+From a gynecologist - Dr. Mrs. Nwachukwu Juliet:
+<div class="affirmation"><strong>"If women’s health were treated as urgent and essential, postpartum care wouldn’t stop at six weeks. 
+We would have ongoing physical therapy for pelvic floor recovery, mental health support for postpartum depression, and real conversations about the toll childbirth takes."</strong></div>
+<br>
+She continues,
+<div class="affirmation"><strong>"One reality about women’s bodies I wish could be spoken about without shame is that after birth, our bodies don’t ‘bounce back’; they transform. 
+That transformation is powerful, but it can also be painful and slow. It’s not vanity to talk about it; it’s survival."</strong></div>
+<br>
+
+Beyond postpartum, a woman’s body has been signaling for years. In a world built for men’s bodies, her pain is often dismissed as “normal women’s problems.” 
+She may bleed through sanitary pads, double over with cramps that feel like labor, gain weight unexpectedly, and be told to “eat less, move more” or that “it’s just hormones.” 
+She has been taught to whisper about her pain, but every dismissed symptom steals pieces of her life. Painful periods are not normal. Sudden weight gain, mood swings, and crushing fatigue 
+are not “just aging” or “stress.” They are signals the body is trying to communicate, yet are often ignored.
+<br><br>
+
+Then comes PCOS, the thief they rarely name. Affecting one in ten women, it causes hair to fall out but grow thick elsewhere, periods to vanish for months then flood, weight to cling to the middle, 
+skin to rebel with adult acne, and moods to swing between rage and despair. All along, it is often dismissed as vanity or “just stress.” It's not normal. It’s PCOS. They should have told her years ago.
+<br><br>
+
+Endometriosis takes women by stealth, often going undiagnosed for seven to twelve years while they miss out on life because their pain was normalized. 
+Thyroid imbalances can derail everything: a woman might feel cold when it's hot, be exhausted after twelve hours of sleep, gain weight on 1200 calories, and lose hair by the handful. 
+Yet doctors often say, “Your levels are within range,” within range for surviving, not thriving.
+<br><br>
+
+This medical gaslighting compounds the problem: “It’s all in your head.” “You’re too young for that.” “Lose weight first.” 
+But disease doesn’t check for identification. A woman’s body isn’t pretending. She knows it better than anyone who sees her for fifteen minutes. Her body is not the problem. She is not broken. 
+She is navigating a system where medications are tested on men, symptoms are compared to male baselines, and serious conditions are often dismissed. Being female is, in effect, treated as a preexisting condition.
+<br><br>
+
+<div class="affirmation"><strong>Advocating for one’s health becomes essential. Dr. Nwachukwu urges women to track everything, demand tests, answers, and care for causes not just symptoms. 
+She suggests bringing someone to appointments, as studies show doctors take women more seriously when accompanied. It is critical to find doctors who specialize in women’s health, who listen, and who validate their patients’ reality.</strong></div>
+<br>
+
+Every woman deserves to feel good in her body. Not perfect, not ideal, but good. Energetic. Like herself. Her body is her oldest ally, fighting for her in a world that wasn’t designed for her. She must listen to it. 
+<div class="affirmation"><strong>"Women’s health isn’t just about avoiding illness, it’s about supporting the complex, beautiful, and sometimes challenging realities of our bodies. And that starts with listening when women speak."</strong></div>
+Her voice matters. Her body matters. And the fight for her wellness is worth everything.
+</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</section>
+
+<section id="topics">
+  <!-- Upcoming Posts Section -->
+  <div class="upcoming-topics container mt-0">
+    <h2 class="fs-1 h2-texts mb-4">Upcoming Topics</h2>
+    <div class="row g-4">
+
+      <!-- Topic 1 -->
+      <div class="col-md-4 col-sm-6">
+        <div class="topic-card p-3 rounded shadow-sm h-100">
+          <img src="./Images/IMG_825.jpeg" class="img-fluid mb-3" alt="The Audacity to Pivot">
+          <h5 class="fw-bold">A Woman's Guide to Reinvention</h5>
+          <p class="fw-bold">Beyond the Blueprint: Bold Moves for Women Over 35.</p>
+        </div>
+      </div>
+
+      <!-- Topic 2 -->
+      <div class="col-md-4 col-sm-6">
+        <div class="topic-card p-3 rounded shadow-sm h-100">
+          <img src="./Images/IMG_820.jpeg" class="img-fluid mb-3" alt="Your Mental Load">
+          <h5 class="fw-bold">The Mental Load is Real.</h5>
+          <p class="fw-bold">It's the silent labor behind every plan, deadline, and detail. Let’s talk about the weight women carry and why it’s time to share the load.            </p>
+        </div>
+      </div>
+
+      <!-- Topic 3 -->
+      <div class="col-md-4 col-sm-6">
+        <div class="topic-card p-3 rounded shadow-sm h-100">
+          <img src="./Images/IMG_824.jpeg" class="img-fluid mb-3" alt="Female Sexuality">
+          <h5 class="fw-bold">A New Conversation on Female Sexuality.</h5>
+          <p class="fw-bold">The Courage to Speak: Unlearning Shame, Embracing Desire.</p>
+        </div>
+      </div>
+
+      <!-- Topic 4 -->
+      <div class="col-md-4 col-sm-6">
+        <div class="topic-card p-3 rounded shadow-sm h-100">
+          <img src="./Images/IMG_826.jpeg" class="img-fluid  mb-3" alt="Money, Power, and Women">
+          <h5 class="fw-bold">Money Talks. She's Speaking.</h5>
+          <p class="fw-bold">Unapologetic Ambition: Women Who Claim Their Wealth and Power.</p>
+        </div>
+      </div>
+
+      <!-- Topic 5 -->
+      <div class="col-md-4 col-sm-6">
+        <div class="topic-card p-3 rounded shadow-sm h-100">
+          <img src="./Images/IMG_822.jpeg" class="img-fluid rounded mb-3" alt="The God Factor">
+          <h5 class="fw-bold">Her Sacred Strength: Faith and Resilience</h5>
+          <p class="fw-bold">Finding Faith in an Unfiltered Life.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- SOCIAL MEDIA STYLE POSTS & COMMENTS SECTION -->
+<section id="community" class="py-4">
+  <div class="container-xl">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="community-container">
+          <h4 class="text-center mb-4 text-brown fw-bold">Leave A Note for Another Woman</h4>
+          <p class=" com-para text-center mb-4">Help another woman navigate life with your words</p>
+          
+          <!-- Create New Post Form -->
+          <div class="create-post-container mb-4">
+            <form id="createPostForm" class="create-post-form">
+              <div class="mb-3">
+                <input type="text" id="posterName" class="form-control" placeholder="Your name babygirl" maxlength="50">
+              </div>
+              <div class="mb-3">
+                <textarea id="postContent" class="form-control" rows="4" placeholder="Write your insight, tip, or piece of wisdom…" maxlength="1000" required></textarea>
+                <div class="form-text text-end">
+                  <span id="postCharCount">0</span>/2000 characters
+                </div>
+              </div>
+              <div class="text-end">
+                <button type="submit" class="btn btn-primary btn-create">Create Post</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Posts Feed -->
+          <div id="postsFeed" class="posts-feed">
+            <!-- Posts will be dynamically loaded here -->
+          </div>
+
+          <!-- No Posts Message -->
+          <div id="noPosts" class="text-center text-muted py-4" style="display: none;">
+            <i class="fas fa-feather fa-2x mb-0"></i>
+            <p>Be the first to share your thoughts!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT SECTION -->
+ <div style="margin: 10px 20px 20px 20px;">
+<section id="the-goal">
+  <div class="envelope">
+    <h4>More Than a Goal → It's a Promise</h4>
+    <p>
+      SoftSpace exists because every woman deserves a corner of the world where she can Breathe, and Grow without judgment.
+    </p>
+    <p>
+      SoftSpace is not just a blog; it's a community. <br>
+      It's the hug you need when the world feels too harsh. It's the friend who sees your potential when you can't, 
+      the mirror that reflects your worth when you've forgotten it, and the gentle push forward when you're ready to grow.
+    </p>
+    <p>
+      Here, we embrace the messy, the beautiful, and the real. SoftSpace is a promise that you are not alone.
+    </p>
+    <p>
+      Welcome home, beautiful soul. You belong here.
+    </p>
+  </div>
+</section>
+
+</div>
+
+ <div style="margin: 25px 20px 20px 20px;">
+<!-- CONTACT SECTION -->
+<section id="reach-out" class="variant-collage"> 
+  <div class="container text-center">
+    <div class="polaroid-card">
+      <div class="ribbon fw-bold fs-3">Your Sisterhood Awaits.</div>
+      <h2 class="contact-title">Slide into our DMs.</h2>
+      <p class="post-title fw-bold fs-3">Say hello.</p>
+      <a href="mailto:kanudera20@gmail.com?subject=SoftSpace%20Message" class="send-email-button">Send Message</a>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="row align-items-center ">
+      <div class="col-md-4 text-center text-md-start">
+        <p class="copyright">&copy; <b>Coded.Dera 2025 SoftSpace. All rights reserved.</b></p>
+      </div>
+      <div class="col-md-3 text-center">
+        <div class="social-icons">
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-pinterest"></i></a>
+          <a href="#"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+      <div class="col-md-4 text-center text-md-end">
+        <a href="#" id="return-to-top"><i class="fas fa-arrow-up"></i> Back to Top</a>
+      </div>
+    </div>
+  </div>
+</footer>
+</div>
+
+<!-- Bootstrap Bundle with Popper (needed for dropdowns, navbar toggler, etc.) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Comment System JavaScript -->
+<script src="soft.js"></script>
+
+</body>
+</html>
