@@ -522,6 +522,8 @@ footer a#return-to-top:hover {
 {
    color: black;
    font-family: 'Indie Flower', cursive;
+   font-weight: 800;
+   font-size: 16px;
 }
 
 .btn-create
@@ -574,17 +576,7 @@ footer a#return-to-top:hover {
 }
 
 .posts-feed {
-    margin-top: 2rem;
-}
-
-.post-item {
-    background: #fff;
-    border: 1px solid #e9ecef;
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-top: 10px;
 }
 
 .post-item:hover {
@@ -638,9 +630,9 @@ footer a#return-to-top:hover {
 }
 
 .post-text {
-    font-size: 1rem;
+    font-size: 18px;
     line-height: 1.6;
-    color: #333;
+    color: #000000;
     margin: 0;
     font-family: 'Nunito', sans-serif;
 }
@@ -1133,10 +1125,6 @@ footer a#return-to-top:hover {
         padding: 1rem;
     }
     
-    .post-item {
-        padding: 1rem;
-    }
-    
     .post-header {
         flex-direction: column;
         align-items: flex-start;
@@ -1171,4 +1159,615 @@ footer a#return-to-top:hover {
         flex-wrap: wrap;
         gap: 0.5rem;
     }
+}
+/* Mobile Responsive CSS for Comment System */
+
+/* Base responsive improvements */
+@media (max-width: 768px) {
+  
+  /* Post Item Container */
+  .post-item {
+    margin: 0 -15px 20px -15px;
+    border-radius: 0;
+    padding: 16px;
+  }
+  
+  /* Post Header */
+  .post-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  
+  .post-meta {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .post-actions {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  
+  /* Post Content */
+  .post-content {
+    margin: 16px 0;
+  }
+  
+  .post-text {
+    font-size: 16px;
+    line-height: 1.5;
+    word-break: break-word;
+  }
+  
+  /* Post Footer Buttons */
+  .post-footer {
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  
+  .post-footer .btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 16px;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+  
+  /* Comments Section */
+  .post-comments {
+    border-top: 1px solid #e9ecef;
+    padding-top: 16px;
+    margin-top: 16px;
+  }
+  
+  /* Comments Header */
+  .comments-header {
+    margin-bottom: 16px;
+  }
+  
+  .comments-toggle-btn {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: #495057 !important;
+    padding: 8px 0 !important;
+    text-align: left;
+    width: 100%;
+  }
+  
+  .comments-toggle-btn:hover {
+    color: #007bff !important;
+  }
+  
+  /* Add Comment Container */
+  .add-comment-container {
+    margin-bottom: 20px;
+  }
+  
+  .post-comment-input, 
+  .comment-reply-input {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 2px solid #e9ecef;
+    width: 100%;
+    resize: none;
+    min-height: 50px;
+  }
+  
+  .post-comment-input:focus,
+  .comment-reply-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  }
+  
+  /* Comment Actions */
+  .comment-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  
+  .post-comment-btn,
+  .post-reply-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    min-height: 44px; /* Touch target size */
+    flex: 1;
+    min-width: 120px;
+  }
+  
+  .post-comment-btn:hover,
+  .post-reply-btn:hover {
+    background: #0056b3;
+  }
+  
+  .cancel-reply-btn {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    min-height: 44px;
+    flex: 0 0 auto;
+  }
+  
+  /* Comment Items */
+  .comment-item {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid #e9ecef;
+  }
+  
+  /* Comment Header */
+  .comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .comment-meta {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .comment-author {
+    font-size: 14px;
+    font-weight: 600;
+    color: #343a40;
+  }
+  
+  .comment-date {
+    font-size: 12px;
+    color: #6c757d;
+    margin-left: 8px;
+  }
+  
+  /* Comment Actions Buttons */
+  .comment-actions {
+    display: flex;
+    gap: 4px;
+  }
+  
+  .edit-comment-btn,
+  .delete-comment-btn,
+  .edit-reply-btn,
+  .delete-reply-btn,
+  .edit-post-btn,
+  .delete-post-btn {
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 14px !important;
+    min-height: 40px !important; /* Touch target size */
+  }
+  
+  .edit-comment-btn i,
+  .delete-comment-btn i,
+  .edit-reply-btn i,
+  .delete-reply-btn i,
+  .edit-post-btn i,
+  .delete-post-btn i {
+    font-size: 14px;
+  }
+  
+  /* Comment Text */
+  .comment-text,
+  .reply-text {
+    font-size: 15px;
+    line-height: 1.5;
+    color: #343a40;
+    word-break: break-word;
+    margin-bottom: 12px;
+  }
+  
+  /* Comment Footer */
+  .comment-footer,
+  .reply-footer {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  
+  .like-comment-btn,
+  .like-reply-btn,
+  .like-post-btn,
+  .reply-to-comment-btn {
+    padding: 8px 16px !important;
+    font-size: 13px !important;
+    border-radius: 20px !important;
+    min-height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    flex: 0 0 auto;
+  }
+  
+  /* Edit Textareas */
+  .comment-edit-input,
+  .reply-edit-input,
+  .comment-edit-textarea {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    padding: 14px 16px !important;
+    border-radius: 12px !important;
+    border: 2px solid #007bff !important;
+    width: 100% !important;
+    min-height: 80px !important;
+    resize: vertical !important;
+    font-family: inherit !important;
+  }
+  
+  .comment-edit-input:focus,
+  .reply-edit-input:focus,
+  .comment-edit-textarea:focus {
+    outline: none !important;
+    border-color: #0056b3 !important;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1) !important;
+  }
+  
+  /* Edit Action Buttons */
+  .comment-edit-actions,
+  .reply-edit-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  
+  .comment-update-btn,
+  .reply-update-btn,
+  .save-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    min-height: 44px;
+    flex: 1;
+    min-width: 100px;
+  }
+  
+  .comment-update-btn:hover,
+  .reply-update-btn:hover,
+  .save-btn:hover {
+    background: #218838;
+  }
+  
+  .comment-cancel-btn,
+  .reply-cancel-btn,
+  .cancel-btn {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    min-height: 44px;
+    flex: 0 0 auto;
+    min-width: 80px;
+  }
+  
+  .comment-cancel-btn:hover,
+  .reply-cancel-btn:hover,
+  .cancel-btn:hover {
+    background: #5a6268;
+  }
+  
+  /* Replies Section */
+  .comment-replies {
+    margin-top: 16px;
+    padding-left: 16px;
+    border-left: 3px solid #e9ecef;
+  }
+  
+  .replies-header {
+    margin-bottom: 12px;
+  }
+  
+  .replies-toggle-btn {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #6c757d !important;
+    padding: 6px 0 !important;
+    text-align: left;
+  }
+  
+  .replies-toggle-btn:hover {
+    color: #007bff !important;
+  }
+  
+  /* Reply Items */
+  .reply-item {
+    background: white;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+    border: 1px solid #e9ecef;
+  }
+  
+  /* Add Reply Container */
+  .add-reply-container {
+    background: white;
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    border: 1px solid #e9ecef;
+  }
+  
+  /* Reply Actions */
+  .reply-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  
+  /* Article Comment Section */
+  .comment-section {
+    padding: 16px;
+    margin: 0 -15px;
+  }
+  
+  .comment-input {
+    font-size: 16px !important;
+    padding: 14px 16px;
+    border-radius: 12px;
+    min-height: 80px;
+  }
+  
+  .post-btn,
+  .like-btn {
+    min-height: 44px;
+    padding: 12px 20px;
+    font-size: 14px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  
+  /* Comments container for article */
+  .comments-container .comment {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid #e9ecef;
+  }
+  
+  .comments-container .comment p {
+    font-size: 15px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+    word-break: break-word;
+  }
+  
+  /* More button and menu */
+  .more-btn {
+    width: 40px !important;
+    height: 40px !important;
+    background: transparent !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 8px !important;
+    font-size: 18px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #6c757d !important;
+  }
+  
+  .more-btn:hover {
+    background: #f8f9fa !important;
+    border-color: #adb5bd !important;
+  }
+  
+  .menu-div {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 140px;
+    overflow: hidden;
+  }
+  
+  .menu-buttons-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .edit-btn,
+  .delete-btn {
+    padding: 14px 16px !important;
+    background: white !important;
+    border: none !important;
+    text-align: left !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #343a40 !important;
+    min-height: 48px !important;
+    width: 100% !important;
+  }
+  
+  .edit-btn:hover {
+    background: #f8f9fa !important;
+    color: #007bff !important;
+  }
+  
+  .delete-btn:hover {
+    background: #f8f9fa !important;
+    color: #dc3545 !important;
+  }
+  
+  .edit-btn {
+    border-bottom: 1px solid #e9ecef !important;
+  }
+  
+  /* Improved spacing for mobile */
+  .post-item + .post-item {
+    margin-top: 24px;
+  }
+  
+  .comment-item + .comment-item {
+    margin-top: 16px;
+  }
+  
+  .reply-item + .reply-item {
+    margin-top: 12px;
+  }
+}
+
+/* Extra small devices (phones in portrait) */
+@media (max-width: 480px) {
+  
+  .post-item {
+    margin: 0 -10px 16px -10px;
+    padding: 14px;
+  }
+  
+  .post-text {
+    font-size: 15px;
+  }
+  
+  .comment-text,
+  .reply-text {
+    font-size: 14px;
+  }
+  
+  .comment-author {
+    font-size: 13px;
+  }
+  
+  .comment-date {
+    font-size: 11px;
+  }
+  
+  .comment-replies {
+    padding-left: 12px;
+  }
+  
+  .comment-edit-actions,
+  .reply-edit-actions {
+    flex-direction: column;
+  }
+  
+  .comment-update-btn,
+  .reply-update-btn,
+  .save-btn,
+  .comment-cancel-btn,
+  .reply-cancel-btn,
+  .cancel-btn {
+    width: 100%;
+  }
+  
+  .post-footer {
+    flex-direction: column;
+  }
+  
+  .post-footer .btn {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
+/* Landscape phone adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+  
+  .comment-edit-input,
+  .reply-edit-input,
+  .comment-edit-textarea {
+    min-height: 60px !important;
+  }
+  
+  .post-comment-input,
+  .comment-reply-input {
+    min-height: 40px;
+  }
+}
+
+/* Touch improvements for all mobile devices */
+@media (hover: none) and (pointer: coarse) {
+  
+  /* Increase touch targets */
+  .btn, button {
+    min-height: 44px;
+  }
+  
+  /* Better active states for touch */
+  .btn:active,
+  button:active {
+    transform: scale(0.98);
+    transition: transform 0.1s;
+  }
+  
+  /* Remove hover states on touch devices */
+  .btn:hover,
+  button:hover {
+    transform: none;
+  }
+}
+
+/* Dark mode considerations for mobile */
+@media (prefers-color-scheme: dark) and (max-width: 768px) {
+  
+  .post-item,
+  .comment-item,
+  .reply-item,
+  .add-reply-container {
+    background: #1a1a1a;
+    border-color: #333;
+    color: #fff;
+  }
+  
+  .post-comment-input,
+  .comment-reply-input,
+  .comment-edit-input,
+  .reply-edit-input,
+  .comment-edit-textarea {
+    background: #2a2a2a;
+    border-color: #444;
+    color: #fff;
+  }
+  
+  .menu-div {
+    background: #2a2a2a;
+    border-color: #444;
+  }
+  
+  .edit-btn,
+  .delete-btn {
+    background: #2a2a2a !important;
+    color: #fff !important;
+  }
+  
+  .edit-btn:hover {
+    background: #333 !important;
+  }
+  
+  .delete-btn:hover {
+    background: #333 !important;
+  }
 }
