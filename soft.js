@@ -1,1659 +1,855 @@
-// Social Media Platform for SoftSpace
-class SocialMediaPlatform {
-    constructor() {
-        this.posts = this.loadPosts();
-        this.currentEditPostId = null;
-        this.currentEditCommentId = null;
-        this.currentEditReplyId = null;
-        this.currentReplyToCommentId = null;
-        this.currentReplyToPostId = null;
-        this.init();
-    }
+// COMPLETE WORKING SOCIAL MEDIA PLATFORM FOR SOFTSPACE
+console.log('🚀 SoftSpace JavaScript Loading...');
 
-    init() {
-        this.setupEventListeners();
-        this.renderPosts();
-    }
+// Global variables (idempotent across multiple loads)
+var supabaseClient;
+var currentUser = window.currentUser || null;
+var posts = window.posts || [];
 
-    setupEventListeners() {
-        // Create post form
-        const createPostForm = document.getElementById('createPostForm');
-        if (createPostForm) {
-            createPostForm.addEventListener('submit', (e) => this.handleCreatePost(e));
-        }
-
-        // Post content character count
-        const postContent = document.getElementById('postContent');
-        if (postContent) {
-            postContent.addEventListener('input', (e) => this.updatePostCharCount(e));
-        }
-    }
-
-    handleCreatePost(e) {
-        e.preventDefault();
-        
-        const nameInput = document.getElementById('posterName');
-        const contentInput = document.getElementById('postContent');
-        
-        const name = nameInput.value.trim() || 'Anonymous';
-        const content = contentInput.value.trim();
-        
-        if (!content) {
-            this.showAlert('Please write something to create a post.', 'warning');
-            return;
-        }
-
-        // Check if we're editing an existing post
-        if (this.currentEditPostId) {
-            this.editPost(this.currentEditPostId, content);
-            this.currentEditPostId = null;
-            const submitBtn = document.querySelector('#createPostForm button[type="submit"]');
-            submitBtn.textContent = 'Create Post';
-            this.showAlert('Post updated successfully!', 'success');
-        } else {
-            this.createPost(name, content);
-            this.showAlert('Post created successfully!', 'success');
-        }
-        
-        // Clear form
-        nameInput.value = '';
-        contentInput.value = '';
-        this.updatePostCharCount({ target: contentInput });
-        
-        this.savePosts();
-        this.renderPosts();
-    }
-
-    showAlert(message, type) {
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `alert ${type}`;
-        alertDiv.textContent = message;
-        
-        // Style the alert
-        alertDiv.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            color: white;
-            font-weight: 500;
-            min-width: 250px;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-        `;
-        
-        // Set color based on type
-        if (type === 'success') {
-            alertDiv.style.backgroundColor = '#10B981';
-        } else if (type === 'warning') {
-            alertDiv.style.backgroundColor = '#F59E0B';
-        } else {
-            alertDiv.style.backgroundColor = '#3B82F6';
-        }
-        
-        document.body.appendChild(alertDiv);
-        
-        // Animate in
-        setTimeout(() => {
-            alertDiv.style.transform = 'translateX(0)';
-        }, 100);
-
-        // Automatically remove alert after 4 seconds
-        setTimeout(() => {
-            alertDiv.style.transform = 'translateX(100%)';
-            setTimeout(() => alertDiv.remove(), 300);
-        }, 4000);
-    }
-
-    createPost(name, content) {
-        const post = {
-            id: Date.now().toString(),
-            author: name,
-            content: content,
-            timestamp: new Date().toISOString(),
-            likes: 0,
-            liked: false,
-            comments: []
-        };
-        
-        this.posts.unshift(post);
-    }
-
-    addCommentToPost(postId, author, content) {
-        const post = this.posts.find(p => p.id === postId);
-        if (post) {
-            const comment = {
-                id: Date.now().toString() + Math.random(),
-                author: author,
-                content: content,
-                timestamp: new Date().toISOString(),
-                likes: 0,
-                liked: false,
-                replies: []
-            };
-            post.comments.push(comment);
-        }
-    }
-
-    addReplyToComment(postId, commentId, author, content) {
-        const post = this.posts.find(p => p.id === postId);
-        if (post) {
-            const comment = post.comments.find(c => c.id === commentId);
-            if (comment) {
-                const reply = {
-                    id: Date.now().toString() + Math.random(),
-                    author: author,
-                    content: content,
-                    timestamp: new Date().toISOString(),
-                    likes: 0,
-                    liked: false
-                };
-                comment.replies.push(reply);
-            }
-        }
-    }
-
-    editPost(postId, newContent) {
-        const post = this.posts.find(p => p.id === postId);
-        if (post) {
-            post.content = newContent;
-            post.edited = true;
-            post.editTimestamp = new Date().toISOString();
-        }
-    }
-
-    editComment(postId, commentId, newContent) {
-        const post = this.posts.find(p => p.id === postId);
-        if (post) {
-            const comment = post.comments.find(c => c.id === commentId);
-            if (comment) {
-                comment.content = newContent;
-                comment.edited = true;
-                comment.editTimestamp = new Date().toISOString();
-            }
-        }
-    }
-
-    editReply(postId, commentId, replyId, newContent) {
-        const post = this.posts.find(p => p.id === postId);
-        if (post) {
-            const comment = post.comments.find(c => c.id === commentId);
-            if (comment) {
-                const reply = comment.replies.find(r => r.id === replyId);
-                if (reply) {
-                    reply.content = newContent;
-                    reply.edited = true;
-                    reply.editTimestamp = new Date().toISOString();
-                }
-            }
-        }
-    }
-
-    deletePost(postId) {
-        this.posts = this.posts.filter(p => p.id !== postId);
-    }
-
-    deleteComment(postId, commentId) {
-        const post = this.posts.find(p => p.id === postId);
-        if (post) {
-            post.comments = post.comments.filter(c => c.id !== commentId);
-        }
-    }
-
-    deleteReply(postId, commentId, replyId) {
-        const post = this.posts.find(p => p.id === postId);
-        if (post) {
-            const comment = post.comments.find(c => c.id === commentId);
-            if (comment) {
-                comment.replies = comment.replies.filter(r => r.id !== replyId);
-            }
-        }
-    }
-
-    togglePostLike(postId) {
-        const post = this.posts.find(p => p.id === postId);
-        if (post) {
-            if (post.liked) {
-                post.likes--;
-                post.liked = false;
-            } else {
-                post.likes++;
-                post.liked = true;
-            }
-            this.savePosts();
-            this.renderPosts();
-        }
-    }
-
-    toggleCommentLike(postId, commentId) {
-        const post = this.posts.find(p => p.id === postId);
-        if (post) {
-            const comment = post.comments.find(c => c.id === commentId);
-            if (comment) {
-                if (comment.liked) {
-                    comment.likes--;
-                    comment.liked = false;
-                } else {
-                    comment.likes++;
-                    comment.liked = true;
-                }
-                this.savePosts();
-                this.renderPosts();
-            }
-        }
-    }
-
-    toggleReplyLike(postId, commentId, replyId) {
-        const post = this.posts.find(p => p.id === postId);
-        if (post) {
-            const comment = post.comments.find(c => c.id === commentId);
-            if (comment) {
-                const reply = comment.replies.find(r => r.id === replyId);
-                if (reply) {
-                    if (reply.liked) {
-                        reply.likes--;
-                        reply.liked = false;
-                    } else {
-                        reply.likes++;
-                        reply.liked = true;
-                    }
-                    this.savePosts();
-                    this.renderPosts();
-                }
-            }
-        }
-    }
-
-    toggleCommentsVisibility(postId) {
-        const commentsList = document.querySelector(`[data-post-id="${postId}"] .comments-list`);
-        const toggleBtn = document.querySelector(`[data-post-id="${postId}"] .comments-toggle-btn`);
-        
-        if (commentsList && toggleBtn) {
-            const isHidden = commentsList.style.display === 'none';
-            commentsList.style.display = isHidden ? 'block' : 'none';
-            const post = this.posts.find(p => p.id === postId);
-            const commentCount = post ? post.comments.length : 0;
-            toggleBtn.textContent = isHidden ? `Hide Comments (${commentCount})` : `Comments (${commentCount})`;
-        }
-    }
-
-    toggleRepliesVisibility(commentId) {
-        const repliesList = document.querySelector(`[data-comment-id="${commentId}"] .replies-list`);
-        const toggleBtn = document.querySelector(`[data-comment-id="${commentId}"] .replies-toggle-btn`);
-        
-        if (repliesList && toggleBtn) {
-            const isHidden = repliesList.style.display === 'none';
-            repliesList.style.display = isHidden ? 'block' : 'none';
-            const replyCount = repliesList.querySelectorAll('.reply-item').length;
-            toggleBtn.textContent = isHidden ? `Hide Replies (${replyCount})` : `Replies (${replyCount})`;
-        }
-    }
-
-    // Show comment input only when Comment button is clicked
-    showCommentInput(postId) {
-        const postItem = document.querySelector(`[data-post-id="${postId}"]`);
-        const addCommentContainer = postItem.querySelector('.add-comment-container');
-        const commentInput = postItem.querySelector('.post-comment-input');
-        
-        if (addCommentContainer && commentInput) {
-            addCommentContainer.style.display = 'block';
-            commentInput.focus();
-        }
-    }
-
-    // Hide comment input after posting
-    hideCommentInput(postId) {
-        const postItem = document.querySelector(`[data-post-id="${postId}"]`);
-        const addCommentContainer = postItem.querySelector('.add-comment-container');
-        
-        if (addCommentContainer) {
-            addCommentContainer.style.display = 'none';
-        }
-    }
-
-    startEditPost(postId) {
-        this.currentEditPostId = postId;
-        this.currentEditCommentId = null;
-        this.currentEditReplyId = null;
-        
-        const post = this.posts.find(p => p.id === postId);
-        if (post) {
-            document.getElementById('postContent').value = post.content;
-            document.getElementById('postContent').focus();
-            
-            const submitBtn = document.querySelector('#createPostForm button[type="submit"]');
-            submitBtn.textContent = 'Update Post';
-        }
-    }
-
-    startEditComment(postId, commentId) {
-        const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
-        const commentText = commentItem.querySelector('.comment-text');
-        const editContainer = commentItem.querySelector('.comment-edit-container');
-        const editTextarea = commentItem.querySelector('.comment-edit-input');
-        
-        const post = this.posts.find(p => p.id === postId);
-        const comment = post ? post.comments.find(c => c.id === commentId) : null;
-        
-        if (comment && commentText && editContainer && editTextarea) {
-            commentText.style.display = 'none';
-            editContainer.style.display = 'block';
-            editTextarea.value = comment.content;
-            editTextarea.focus();
-        }
-    }
-
-    startEditReply(postId, commentId, replyId) {
-        const replyItem = document.querySelector(`[data-reply-id="${replyId}"]`);
-        const replyText = replyItem.querySelector('.reply-text');
-        const editContainer = replyItem.querySelector('.reply-edit-container');
-        const editTextarea = replyItem.querySelector('.reply-edit-input');
-        
-        const post = this.posts.find(p => p.id === postId);
-        const comment = post ? post.comments.find(c => c.id === commentId) : null;
-        const reply = comment ? comment.replies.find(r => r.id === replyId) : null;
-        
-        if (reply && replyText && editContainer && editTextarea) {
-            replyText.style.display = 'none';
-            editContainer.style.display = 'block';
-            editTextarea.value = reply.content;
-            editTextarea.focus();
-        }
-    }
-
-    startReplyToComment(postId, commentId) {
-        const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
-        const addReplyContainer = commentItem.querySelector('.add-reply-container');
-        const replyInput = commentItem.querySelector('.comment-reply-input');
-        
-        if (addReplyContainer && replyInput) {
-            addReplyContainer.style.display = 'block';
-            replyInput.focus();
-        }
-    }
-
-    cancelEdit() {
-        this.currentEditPostId = null;
-        this.currentEditCommentId = null;
-        this.currentEditReplyId = null;
-        
-        document.getElementById('postContent').value = '';
-        document.getElementById('posterName').value = '';
-        
-        const submitBtn = document.querySelector('#createPostForm button[type="submit"]');
-        submitBtn.textContent = 'Create Post';
-        
-        this.updatePostCharCount({ target: document.getElementById('postContent') });
-        
-        // Hide all edit inputs
-        document.querySelectorAll('.comment-edit-container, .reply-edit-container').forEach(container => {
-            container.style.display = 'none';
-        });
-        
-        // Show all comment/reply texts
-        document.querySelectorAll('.comment-text, .reply-text').forEach(text => {
-            text.style.display = 'block';
-        });
-    }
-
-    renderPosts() {
-        const postsFeed = document.getElementById('postsFeed');
-        const noPosts = document.getElementById('noPosts');
-        
-        if (!postsFeed) return;
-
-        if (this.posts.length === 0) {
-            postsFeed.innerHTML = '';
-            noPosts.style.display = 'block';
-            return;
-        }
-
-        noPosts.style.display = 'none';
-        
-        postsFeed.innerHTML = this.posts.map(post => this.renderPost(post)).join('');
-        
-        // Add event listeners to new post elements
-        this.addPostEventListeners();
-    }
-
-    renderPost(post) {
-        const editStatus = post.edited ? '<small class="text-muted ms-2">(edited)</small>' : '';
-        const likeIcon = post.liked ? 'fas fa-heart text-danger' : 'far fa-heart';
-        
-        return `
-            <div class="post-item" data-post-id="${post.id}" style="
-                background: linear-gradient(145deg, #ffffff, #f8f9ff);
-                border: 1px solid #e1e8f7;
-                border-radius: 16px;
-                padding: 24px;
-                margin-bottom: 24px;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-                transition: all 0.3s ease;
-            ">
-                <div class="post-header" style="
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 16px;
-                ">
-                    <div class="post-meta">
-                        <span class="post-author fw-bold" style="
-                            color: #2d3748;
-                            font-size: 16px;
-                        ">${this.escapeHtml(post.author)}</span>
-                        <span class="post-date text-muted" style="
-                            margin-left: 12px;
-                            color: #718096;
-                            font-size: 14px;
-                        ">${this.formatDate(post.timestamp)}</span>
-                        ${editStatus}
-                    </div>
-                    <div class="post-actions" style="display: flex; gap: 8px;">
-                        <button class="btn btn-sm btn-outline-secondary edit-post-btn" title="Edit Post" style="
-                            border: 1px solid #e2e8f0;
-                            background: white;
-                            border-radius: 8px;
-                            padding: 6px 10px;
-                            transition: all 0.2s ease;
-                        ">
-                            <i class="fas fa-edit" style="color: #4a5568;"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger delete-post-btn" title="Delete Post" style="
-                            border: 1px solid #fed7d7;
-                            background: white;
-                            border-radius: 8px;
-                            padding: 6px 10px;
-                            transition: all 0.2s ease;
-                        ">
-                            <i class="fas fa-trash" style="color: #e53e3e;"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="post-content" style="margin-bottom: 20px;">
-                    <p class="post-text" style="
-                        color: #2d3748;
-                        line-height: 1.6;
-                        font-size: 15px;
-                        margin: 0;
-                    ">${this.escapeHtml(post.content)}</p>
-                </div>
-                
-                <div class="post-footer" style="
-                    display: flex;
-                    gap: 12px;
-                    padding-top: 16px;
-                    border-top: 1px solid #e2e8f0;
-                ">
-                    <button class="btn btn-sm btn-outline-primary like-post-btn" title="Like Post" style="
-                        border: 1px solid #3182ce;
-                        background: ${post.liked ? '#3182ce' : 'white'};
-                        color: ${post.liked ? 'white' : '#3182ce'};
-                        border-radius: 20px;
-                        padding: 6px 16px;
-                        display: flex;
-                        align-items: center;
-                        gap: 6px;
-                        transition: all 0.2s ease;
-                    ">
-                        <i class="${likeIcon}"></i>
-                        <span class="like-count">${post.likes}</span>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary comment-btn" title="Comment on this post" style="
-                        border: 1px solid #a0aec0;
-                        background: white;
-                        color: #4a5568;
-                        border-radius: 20px;
-                        padding: 6px 16px;
-                        display: flex;
-                        align-items: center;
-                        gap: 6px;
-                        transition: all 0.2s ease;
-                    ">
-                        <i class="fas fa-comment"></i>
-                        <span>Comment</span>
-                    </button>
-                </div>
-                
-                <!-- Comment Section for this Post -->
-                <div class="post-comments" style="margin-top: 20px;">
-                    <div class="comments-header">
-                        <button class="btn btn-sm btn-link comments-toggle-btn" style="
-                            padding: 0;
-                            text-decoration: none;
-                            color: #4a5568;
-                            font-weight: 500;
-                            border: none;
-                            background: none;
-                        ">
-                            Comments (${post.comments.length})
-                        </button>
-                    </div>
-                    
-                    <!-- Add Comment to this Post (Hidden by default) -->
-                    <div class="add-comment-container" style="
-                        display: none;
-                        margin: 16px 0;
-                        background: #f7fafc;
-                        border-radius: 12px;
-                        padding: 16px;
-                        border: 1px solid #e2e8f0;
-                    ">
-                        <input type="text" class="form-control post-comment-input" placeholder="Write a comment..." maxlength="300" style="
-                            border: 2px solid #e2e8f0;
-                            border-radius: 25px;
-                            padding: 12px 20px;
-                            font-size: 14px;
-                            background: white;
-                            transition: all 0.2s ease;
-                            margin-bottom: 12px;
-                        ">
-                        <div class="comment-actions" style="display: flex; gap: 8px; justify-content: flex-end;">
-                            <button class="btn btn-sm btn-outline-secondary cancel-comment-btn" style="
-                                border-radius: 20px;
-                                padding: 6px 16px;
-                                border: 1px solid #cbd5e0;
-                            ">Cancel</button>
-                            <button class="btn btn-sm btn-primary post-comment-btn" style="
-                                border-radius: 20px;
-                                padding: 6px 16px;
-                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                border: none;
-                            ">Post Comment</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Comments List -->
-                    <div class="comments-list" style="display: none; margin-top: 16px;">
-                        ${post.comments.map(comment => this.renderComment(comment, post.id)).join('')}
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    renderComment(comment, postId) {
-        const editStatus = comment.edited ? '<small class="text-muted ms-2">(edited)</small>' : '';
-        const likeIcon = comment.liked ? 'fas fa-heart text-danger' : 'far fa-heart';
-        
-        return `
-            <div class="comment-item" data-comment-id="${comment.id}" style="
-                background: white;
-                border-radius: 12px;
-                padding: 16px;
-                margin-bottom: 12px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-                border: 1px solid #f0f0f0;
-                position: relative;
-            ">
-                <!-- Comment Actions (Top Right) -->
-                <div class="comment-actions" style="
-                    position: absolute;
-                    top: 12px;
-                    right: 12px;
-                    display: flex;
-                    gap: 4px;
-                ">
-                    <button class="btn btn-sm edit-comment-btn" title="Edit Comment" style="
-                        background: rgba(74, 85, 104, 0.1);
-                        border: none;
-                        border-radius: 6px;
-                        padding: 4px 8px;
-                        color: #4a5568;
-                        font-size: 12px;
-                        transition: all 0.2s ease;
-                    ">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm delete-comment-btn" title="Delete Comment" style="
-                        background: rgba(229, 62, 62, 0.1);
-                        border: none;
-                        border-radius: 6px;
-                        padding: 4px 8px;
-                        color: #e53e3e;
-                        font-size: 12px;
-                        transition: all 0.2s ease;
-                    ">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-
-                <div class="comment-header" style="margin-bottom: 8px; padding-right: 60px;">
-                    <div class="comment-meta">
-                        <span class="comment-author fw-bold" style="
-                            color: #2d3748;
-                            font-size: 14px;
-                        ">${this.escapeHtml(comment.author)}</span>
-                        <span class="comment-date text-muted" style="
-                            margin-left: 8px;
-                            color: #718096;
-                            font-size: 12px;
-                        ">${this.formatDate(comment.timestamp)}</span>
-                        ${editStatus}
-                    </div>
-                </div>
-                
-                <div class="comment-content">
-                    <p class="comment-text" style="
-                        color: #4a5568;
-                        line-height: 1.5;
-                        font-size: 14px;
-                        margin: 0 0 12px 0;
-                    ">${this.escapeHtml(comment.content)}</p>
-                    
-                    <!-- Edit Comment Input (hidden by default) -->
-                    <div class="comment-edit-container" style="display: none;">
-                        <textarea class="form-control comment-edit-input" rows="2" maxlength="300" style="
-                            border: 2px solid #e2e8f0;
-                            border-radius: 8px;
-                            padding: 10px;
-                            font-size: 14px;
-                            resize: none;
-                            margin-bottom: 8px;
-                        ">${this.escapeHtml(comment.content)}</textarea>
-                        <div class="comment-edit-actions" style="display: flex; gap: 8px; justify-content: flex-end;">
-                            <button class="btn btn-sm btn-outline-secondary comment-cancel-btn" style="
-                                border-radius: 16px;
-                                padding: 4px 12px;
-                                font-size: 12px;
-                            ">Cancel</button>
-                            <button class="btn btn-sm btn-primary comment-update-btn" style="
-                                border-radius: 16px;
-                                padding: 4px 12px;
-                                font-size: 12px;
-                                background: #4299e1;
-                                border: none;
-                            ">Update</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="comment-footer" style="display: flex; gap: 8px;">
-                    <button class="btn btn-sm btn-outline-primary like-comment-btn" title="Like Comment" style="
-                        border: 1px solid #3182ce;
-                        background: ${comment.liked ? '#3182ce' : 'white'};
-                        color: ${comment.liked ? 'white' : '#3182ce'};
-                        border-radius: 16px;
-                        padding: 4px 12px;
-                        display: flex;
-                        align-items: center;
-                        gap: 4px;
-                        font-size: 12px;
-                    ">
-                        <i class="${likeIcon}"></i>
-                        <span class="like-count">${comment.likes}</span>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary reply-to-comment-btn" title="Reply to this comment" style="
-                        border: 1px solid #a0aec0;
-                        background: white;
-                        color: #4a5568;
-                        border-radius: 16px;
-                        padding: 4px 12px;
-                        display: flex;
-                        align-items: center;
-                        gap: 4px;
-                        font-size: 12px;
-                    ">
-                        <i class="fas fa-reply"></i>
-                        <span>Reply</span>
-                    </button>
-                </div>
-                
-                <!-- Reply Section for this Comment -->
-                <div class="comment-replies" style="margin-top: 12px;">
-                    <div class="replies-header">
-                        <button class="btn btn-sm btn-link replies-toggle-btn" style="
-                            padding: 0;
-                            text-decoration: none;
-                            color: #4a5568;
-                            font-weight: 500;
-                            border: none;
-                            background: none;
-                            font-size: 12px;
-                        ">
-                            Replies (${comment.replies.length})
-                        </button>
-                    </div>
-                    
-                    <!-- Add Reply to this Comment -->
-                    <div class="add-reply-container" style="
-                        display: none;
-                        margin: 12px 0;
-                        background: #f7fafc;
-                        border-radius: 8px;
-                        padding: 12px;
-                        border: 1px solid #e2e8f0;
-                    ">
-                        <input type="text" class="form-control comment-reply-input" placeholder="Write a reply..." maxlength="200" style="
-                            border: 2px solid #e2e8f0;
-                            border-radius: 20px;
-                            padding: 8px 16px;
-                            font-size: 12px;
-                            background: white;
-                            margin-bottom: 8px;
-                        ">
-                        <div class="reply-actions" style="display: flex; gap: 6px; justify-content: flex-end;">
-                            <button class="btn btn-sm btn-outline-secondary cancel-reply-btn" style="
-                                border-radius: 16px;
-                                padding: 4px 12px;
-                                font-size: 11px;
-                            ">Cancel</button>
-                            <button class="btn btn-sm btn-primary post-reply-btn" style="
-                                border-radius: 16px;
-                                padding: 4px 12px;
-                                font-size: 11px;
-                                background: #4299e1;
-                                border: none;
-                            ">Post Reply</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Replies List -->
-                    <div class="replies-list" style="display: none; margin-top: 8px; margin-left: 20px;">
-                        ${comment.replies.map(reply => this.renderReply(reply, postId, comment.id)).join('')}
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    renderReply(reply, postId, commentId) {
-        const editStatus = reply.edited ? '<small class="text-muted ms-2">(edited)</small>' : '';
-        const likeIcon = reply.liked ? 'fas fa-heart text-danger' : 'far fa-heart';
-        
-        return `
-            <div class="reply-item" data-reply-id="${reply.id}" data-comment-id="${commentId}" data-post-id="${postId}" style="
-                background: white;
-                border-radius: 8px;
-                padding: 12px;
-                margin-bottom: 8px;
-                box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-                border: 1px solid #f7fafc;
-                position: relative;
-            ">
-                <!-- Reply Actions (Top Right) -->
-                <div class="reply-actions" style="
-                    position: absolute;
-                    top: 8px;
-                    right: 8px;
-                    display: flex;
-                    gap: 4px;
-                ">
-                    <button class="btn btn-sm edit-reply-btn" title="Edit Reply" style="
-                        background: rgba(74, 85, 104, 0.1);
-                        border: none;
-                        border-radius: 4px;
-                        padding: 2px 6px;
-                        color: #4a5568;
-                        font-size: 10px;
-                        transition: all 0.2s ease;
-                    ">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm delete-reply-btn" title="Delete Reply" style="
-                        background: rgba(229, 62, 62, 0.1);
-                        border: none;
-                        border-radius: 4px;
-                        padding: 2px 6px;
-                        color: #e53e3e;
-                        font-size: 10px;
-                        transition: all 0.2s ease;
-                    ">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-
-                <div class="reply-header" style="margin-bottom: 6px; padding-right: 50px;">
-                    <div class="reply-meta">
-                        <span class="reply-author fw-bold" style="
-                            color: #2d3748;
-                            font-size: 12px;
-                        ">${this.escapeHtml(reply.author)}</span>
-                        <span class="reply-date text-muted" style="
-                            margin-left: 6px;
-                            color: #718096;
-                            font-size: 10px;
-                        ">${this.formatDate(reply.timestamp)}</span>
-                        ${editStatus}
-                    </div>
-                </div>
-                
-                <div class="reply-content">
-                    <p class="reply-text" style="
-                        color: #4a5568;
-                        line-height: 1.4;
-                        font-size: 12px;
-                        margin: 0 0 8px 0;
-                    ">${this.escapeHtml(reply.content)}</p>
-                    
-                    <!-- Edit Reply Input (hidden by default) -->
-                    <div class="reply-edit-container" style="display: none;">
-                        <textarea class="form-control reply-edit-input" rows="2" maxlength="200" style="
-                            border: 2px solid #e2e8f0;
-                            border-radius: 6px;
-                            padding: 8px;
-                            font-size: 12px;
-                            resize: none;
-                            margin-bottom: 6px;
-                        ">${this.escapeHtml(reply.content)}</textarea>
-                        <div class="reply-edit-actions" style="display: flex; gap: 6px; justify-content: flex-end;">
-                            <button class="btn btn-sm btn-outline-secondary reply-cancel-btn" style="
-                                border-radius: 12px;
-                                padding: 2px 8px;
-                                font-size: 10px;
-                            ">Cancel</button>
-                            <button class="btn btn-sm btn-primary reply-update-btn" style="
-                                border-radius: 12px;
-                                padding: 2px 8px;
-                                font-size: 10px;
-                                background: #4299e1;
-                                border: none;
-                            ">Update</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="reply-footer">
-                    <button class="btn btn-sm btn-outline-primary like-reply-btn" title="Like Reply" style="
-                        border: 1px solid #3182ce;
-                        background: ${reply.liked ? '#3182ce' : 'white'};
-                        color: ${reply.liked ? 'white' : '#3182ce'};
-                        border-radius: 12px;
-                        padding: 2px 8px;
-                        display: flex;
-                        align-items: center;
-                        gap: 3px;
-                        font-size: 10px;
-                    ">
-                        <i class="${likeIcon}"></i>
-                        <span class="like-count">${reply.likes}</span>
-                    </button>
-                </div>
-            </div>
-        `;
-    }
-
-    addPostEventListeners() {
-        // Comments toggle buttons
-        document.querySelectorAll('.comments-toggle-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const postId = e.target.closest('.post-item').dataset.postId;
-                this.toggleCommentsVisibility(postId);
-            });
-        });
-
-        // Replies toggle buttons
-        document.querySelectorAll('.replies-toggle-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const commentId = e.target.closest('.comment-item').dataset.commentId;
-                this.toggleRepliesVisibility(commentId);
-            });
-        });
-
-        // Like post buttons
-        document.querySelectorAll('.like-post-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const postId = e.target.closest('.post-item').dataset.postId;
-                this.togglePostLike(postId);
-            });
-        });
-
-        // Edit post buttons
-        document.querySelectorAll('.edit-post-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const postId = e.target.closest('.post-item').dataset.postId;
-                this.startEditPost(postId);
-            });
-        });
-
-        // Delete post buttons
-        document.querySelectorAll('.delete-post-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const postId = e.target.closest('.post-item').dataset.postId;
-                this.deletePost(postId);
-                this.savePosts();
-                this.renderPosts();
-                this.showAlert('Post deleted successfully!', 'success');
-            });
-        });
-
-        // Comment buttons (Show comment input)
-        document.querySelectorAll('.comment-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const postId = e.target.closest('.post-item').dataset.postId;
-                this.showCommentInput(postId);
-            });
-        });
-
-        // Cancel comment buttons
-        document.querySelectorAll('.cancel-comment-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const postId = e.target.closest('.post-item').dataset.postId;
-                this.hideCommentInput(postId);
-            });
-        });
-
-        // Post comment buttons
-        document.querySelectorAll('.post-comment-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const postItem = e.target.closest('.post-item');
-                const postId = postItem.dataset.postId;
-                const commentInput = postItem.querySelector('.post-comment-input');
-                const content = commentInput.value.trim();
-                
-                if (content) {
-                    this.addCommentToPost(postId, 'Anonymous', content);
-                    commentInput.value = '';
-                    this.hideCommentInput(postId); // Hide after posting
-                    this.savePosts();
-                    this.renderPosts();
-                    this.showAlert('Comment posted successfully!', 'success');
-                } else {
-                    this.showAlert('Please write something to comment.', 'warning');
-                }
-            });
-        });
-
-        // Like comment buttons
-        document.querySelectorAll('.like-comment-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const commentItem = e.target.closest('.comment-item');
-                const commentId = commentItem.dataset.commentId;
-                const postId = commentItem.closest('.post-item').dataset.postId;
-                this.toggleCommentLike(postId, commentId);
-            });
-        });
-
-        // Edit comment buttons
-        document.querySelectorAll('.edit-comment-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const commentItem = e.target.closest('.comment-item');
-                const commentId = commentItem.dataset.commentId;
-                const postId = commentItem.closest('.post-item').dataset.postId;
-                this.startEditComment(postId, commentId);
-            });
-        });
-
-        // Delete comment buttons
-        document.querySelectorAll('.delete-comment-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const commentItem = e.target.closest('.comment-item');
-                const commentId = commentItem.dataset.commentId;
-                const postId = commentItem.closest('.post-item').dataset.postId;
-                this.deleteComment(postId, commentId);
-                this.savePosts();
-                this.renderPosts();
-                this.showAlert('Comment deleted successfully!', 'success');
-            });
-        });
-
-        // Reply to comment buttons
-        document.querySelectorAll('.reply-to-comment-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const commentItem = e.target.closest('.comment-item');
-                const commentId = commentItem.dataset.commentId;
-                const postId = commentItem.closest('.post-item').dataset.postId;
-                this.startReplyToComment(postId, commentId);
-            });
-        });
-
-        // Post reply buttons
-        document.querySelectorAll('.post-reply-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const commentItem = e.target.closest('.comment-item');
-                const commentId = commentItem.dataset.commentId;
-                const postId = commentItem.closest('.post-item').dataset.postId;
-                const replyInput = commentItem.querySelector('.comment-reply-input');
-                const content = replyInput.value.trim();
-                
-                if (content) {
-                    this.addReplyToComment(postId, commentId, 'Anonymous', content);
-                    replyInput.value = '';
-                    const addReplyContainer = commentItem.querySelector('.add-reply-container');
-                    addReplyContainer.style.display = 'none';
-                    this.savePosts();
-                    this.renderPosts();
-                    this.showAlert('Reply posted successfully!', 'success');
-                } else {
-                    this.showAlert('Please write something to reply.', 'warning');
-                }
-            });
-        });
-
-        // Cancel reply buttons
-        document.querySelectorAll('.cancel-reply-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const commentItem = e.target.closest('.comment-item');
-                const addReplyContainer = commentItem.querySelector('.add-reply-container');
-                const replyInput = commentItem.querySelector('.comment-reply-input');
-                addReplyContainer.style.display = 'none';
-                replyInput.value = '';
-            });
-        });
-
-        // Like reply buttons
-        document.querySelectorAll('.like-reply-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const replyItem = e.target.closest('.reply-item');
-                const replyId = replyItem.dataset.replyId;
-                const commentId = replyItem.dataset.commentId;
-                const postId = replyItem.dataset.postId;
-                this.toggleReplyLike(postId, commentId, replyId);
-            });
-        });
-
-        // Edit reply buttons
-        document.querySelectorAll('.edit-reply-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const replyItem = e.target.closest('.reply-item');
-                const replyId = replyItem.dataset.replyId;
-                const commentId = replyItem.dataset.commentId;
-                const postId = replyItem.dataset.postId;
-                this.startEditReply(postId, commentId, replyId);
-            });
-        });
-
-        // Delete reply buttons
-        document.querySelectorAll('.delete-reply-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const replyItem = e.target.closest('.reply-item');
-                const replyId = replyItem.dataset.replyId;
-                const commentId = replyItem.dataset.commentId;
-                const postId = replyItem.dataset.postId;
-                this.deleteReply(postId, commentId, replyId);
-                this.savePosts();
-                this.renderPosts();
-                this.showAlert('Reply deleted successfully!', 'success');
-            });
-        });
-
-        // Update comment buttons
-        document.querySelectorAll('.comment-update-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const commentItem = e.target.closest('.comment-item');
-                const commentId = commentItem.dataset.commentId;
-                const postId = commentItem.closest('.post-item').dataset.postId;
-                const editInput = commentItem.querySelector('.comment-edit-input');
-                const newContent = editInput.value.trim();
-                
-                if (newContent) {
-                    this.editComment(postId, commentId, newContent);
-                    this.savePosts();
-                    this.renderPosts();
-                    this.showAlert('Comment updated successfully!', 'success');
-                } else {
-                    this.showAlert('Please write something to update.', 'warning');
-                }
-            });
-        });
-
-        // Update reply buttons
-        document.querySelectorAll('.reply-update-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const replyItem = e.target.closest('.reply-item');
-                const replyId = replyItem.dataset.replyId;
-                const commentId = replyItem.dataset.commentId;
-                const postId = replyItem.dataset.postId;
-                const editInput = replyItem.querySelector('.reply-edit-input');
-                const newContent = editInput.value.trim();
-                
-                if (newContent) {
-                    this.editReply(postId, commentId, replyId, newContent);
-                    this.savePosts();
-                    this.renderPosts();
-                    this.showAlert('Reply updated successfully!', 'success');
-                } else {
-                    this.showAlert('Please write something to update.', 'warning');
-                }
-            });
-        });
-
-        // Cancel edit buttons
-        document.querySelectorAll('.comment-cancel-btn, .reply-cancel-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const item = e.target.closest('.comment-item, .reply-item');
-                const editContainer = item.querySelector('.comment-edit-container, .reply-edit-container');
-                const textElement = item.querySelector('.comment-text, .reply-text');
-                
-                editContainer.style.display = 'none';
-                textElement.style.display = 'block';
-            });
-        });
-
-        // Add hover effects for buttons
-        this.addHoverEffects();
-    }
-
-    addHoverEffects() {
-        // Add hover effects for edit/delete buttons
-        document.querySelectorAll('.edit-post-btn, .edit-comment-btn, .edit-reply-btn').forEach(btn => {
-            btn.addEventListener('mouseenter', () => {
-                btn.style.background = 'rgba(74, 85, 104, 0.2)';
-                btn.style.transform = 'scale(1.1)';
-            });
-            btn.addEventListener('mouseleave', () => {
-                btn.style.background = 'rgba(74, 85, 104, 0.1)';
-                btn.style.transform = 'scale(1)';
-            });
-        });
-
-        document.querySelectorAll('.delete-post-btn, .delete-comment-btn, .delete-reply-btn').forEach(btn => {
-            btn.addEventListener('mouseenter', () => {
-                btn.style.background = 'rgba(229, 62, 62, 0.2)';
-                btn.style.transform = 'scale(1.1)';
-            });
-            btn.addEventListener('mouseleave', () => {
-                btn.style.background = 'rgba(229, 62, 62, 0.1)';
-                btn.style.transform = 'scale(1)';
-            });
-        });
-
-        // Add hover effects for input fields
-        document.querySelectorAll('.post-comment-input, .comment-reply-input, .comment-edit-input, .reply-edit-input').forEach(input => {
-            input.addEventListener('focus', () => {
-                input.style.borderColor = '#4299e1';
-                input.style.boxShadow = '0 0 0 3px rgba(66, 153, 225, 0.1)';
-            });
-            input.addEventListener('blur', () => {
-                input.style.borderColor = '#e2e8f0';
-                input.style.boxShadow = 'none';
-            });
-        });
-    }
-
-    updatePostCharCount(e) {
-        const charCount = document.getElementById('postCharCount');
-        if (charCount) {
-            charCount.textContent = e.target.value.length;
-        }
-    }
-
-  formatDate(timestamp) {
-    return new Date(timestamp).toLocaleString();
+function getDisplayName(user) {
+    if (!user) return 'User';
+    const fullName = user.user_metadata && user.user_metadata.full_name;
+    if (fullName && String(fullName).trim()) return fullName;
+    return (user.email || 'User').split('@')[0];
 }
 
-    escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    savePosts() {
-        try {
-            localStorage.setItem('softspace-posts', JSON.stringify(this.posts));
-        } catch (e) {
-            console.warn('Could not save to localStorage:', e);
-        }
-    }
-
-    loadPosts() {
-        try {
-            const saved = localStorage.getItem('softspace-posts');
-            return saved ? JSON.parse(saved) : [];
-        } catch (e) {
-            console.warn('Could not load from localStorage:', e);
-            return [];
-        }
+function clearAuthHashIfError() {
+    if (location.hash && location.hash.includes('error=')) {
+        console.warn('Clearing auth error hash:', location.hash);
+        history.replaceState('', document.title, location.pathname + location.search);
     }
 }
 
-// Add cancel button to the create post form
-document.addEventListener('DOMContentLoaded', function() {
-    const createPostForm = document.getElementById('createPostForm');
-    if (createPostForm) {
-        const submitBtn = createPostForm.querySelector('button[type="submit"]');
-        const cancelBtn = document.createElement('button');
-        cancelBtn.type = 'button';
-        cancelBtn.className = 'btn btn-outline-secondary ms-2';
-        cancelBtn.textContent = 'Cancel';
-        cancelBtn.style.cssText = `
-            border-radius: 20px;
-            padding: 8px 20px;
-            border: 2px solid #cbd5e0;
-            background: white;
-            color: #4a5568;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            display: none;
-        `;
-        
-        cancelBtn.addEventListener('click', () => {
-            window.socialPlatform.cancelEdit();
-        });
-        
-        // Add hover effect
-        cancelBtn.addEventListener('mouseenter', () => {
-            cancelBtn.style.background = '#f7fafc';
-            cancelBtn.style.borderColor = '#a0aec0';
-        });
-        cancelBtn.addEventListener('mouseleave', () => {
-            cancelBtn.style.background = 'white';
-            cancelBtn.style.borderColor = '#cbd5e0';
-        });
-        
-        submitBtn.parentNode.appendChild(cancelBtn);
-        
-        // Show/hide cancel button based on edit state
-        const observer = new MutationObserver(() => {
-            const isEditing = window.socialPlatform && window.socialPlatform.currentEditPostId;
-            cancelBtn.style.display = isEditing ? 'inline-block' : 'none';
-        });
-        
-        observer.observe(createPostForm, { childList: true, subtree: true });
+// Wait for Supabase to be available
+function waitForSupabase() {
+    if (typeof supabase !== 'undefined') {
+        console.log('✅ Supabase loaded, initializing...');
+        initializeApp();
+    } else {
+        console.log('⏳ Waiting for Supabase...');
+        setTimeout(waitForSupabase, 100);
     }
+}
+
+function initializeApp() {
+    if (window.__softspaceInited) {
+        console.warn('SoftSpace already initialized - skipping duplicate init');
+        return;
+    }
+    const SUPABASE_URL = 'https://rfopqciinmhyecvvulik.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmb3BxY2lpbm1oeWVjdnZ1bGlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzNjQzMjMsImV4cCI6MjA3MTk0MDMyM30.YVZuHc4k8BLw7ZPr-HScPh5cvt-wrAsva5_xEk8tCEw';
     
-    // Initialize social media platform
-    window.socialPlatform = new SocialMediaPlatform();
-});
-
-// Article COMMENT SECTION
-document.addEventListener("DOMContentLoaded", () => {
-
-  class CommentSystem {
-    constructor(section) {
-      this.section = section;
-      this.articleId = section.dataset.articleId;
-      this.commentsKey = `comments_article_${this.articleId}`;
-      this.likesKey = `likes_article_${this.articleId}`;
-
-      this.textarea = this.section.querySelector(".comment-input");
-      this.postBtn = this.section.querySelector(".post-btn");
-      this.likeBtn = this.section.querySelector(".like-btn");
-
-      this.commentsContainer = document.createElement("div");
-      this.commentsContainer.classList.add("comments-container");
-      this.commentsContainer.style.cssText = `
-        margin-top: 20px;
-        padding: 16px 0;
-        border-top: 1px solid #e2e8f0;
-      `;
-      this.section.appendChild(this.commentsContainer);
-
-      try {
-        this.comments = JSON.parse(localStorage.getItem(this.commentsKey)) || [];
-        this.likes = parseInt(localStorage.getItem(this.likesKey)) || 0;
-        this.liked = localStorage.getItem(`liked_article_${this.articleId}`) === 'true';
-      } catch (e) {
-        this.comments = [];
-        this.likes = 0;
-        this.liked = false;
-      }
-      
-      this.updateLikeDisplay();
-
-      this.init();
-      this.renderComments();
-    }
-
-    init() {
-      // Like button
-      if (this.likeBtn) {
-        this.likeBtn.addEventListener("click", () => {
-          if (this.liked) {
-            this.likes--;
-            this.liked = false;
-            this.likeBtn.classList.remove("liked");
-          } else {
-            this.likes++;
-            this.liked = true;
-            this.likeBtn.classList.add("liked");
-          }
-          this.updateLikeDisplay();
-          try {
-            localStorage.setItem(this.likesKey, this.likes);
-            localStorage.setItem(`liked_article_${this.articleId}`, this.liked);
-          } catch (e) {
-            console.warn('Could not save like status:', e);
-          }
-        });
-      }
-
-      // Post button
-      if (this.postBtn && this.textarea) {
-        this.postBtn.addEventListener("click", () => {
-          const text = this.textarea.value.trim();
-          if (text) {
-            this.addComment(text);
-            this.textarea.value = "";
-          }
-        });
-      }
-
-      // Close menus when clicking outside
-      document.addEventListener("click", (e) => {
-        this.commentsContainer.querySelectorAll(".menu-div").forEach((menuDiv) => {
-          const moreBtn = menuDiv.previousElementSibling;
-          if (!menuDiv.contains(e.target) && (!moreBtn || !moreBtn.contains(e.target))) {
-            menuDiv.style.display = "none";
-          }
-        });
-      });
-    }
-
-    updateLikeDisplay() {
-      if (this.likeBtn) {
-        const span = this.likeBtn.querySelector("span");
-        if (span) span.textContent = this.likes;
-        if (this.liked) {
-          this.likeBtn.classList.add("liked");
-          this.likeBtn.style.color = '#e53e3e';
-        } else {
-          this.likeBtn.classList.remove("liked");
-          this.likeBtn.style.color = '#4a5568';
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true,
+            storage: window.localStorage
         }
-      }
+    });
+    console.log('🔧 Supabase client created');
+    window.__softspaceInited = true;
+
+    clearAuthHashIfError();
+    
+    // Initialize everything
+    setupAuth();
+    loadPosts();
+    setupEventListeners();
+    setupArticleBlocks();
+}
+
+// Authentication functions
+async function setupAuth() {
+    try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) {
+            currentUser = session.user;
+            console.log('✅ User already signed in:', getDisplayName(currentUser));
+            updateAuthUI();
+        }
+
+        if (!window.__softspaceAuthListenerSet) {
+            window.__softspaceAuthListenerSet = true;
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_IN') {
+                    currentUser = session.user;
+                    console.log('🔐 User signed in:', getDisplayName(currentUser));
+                    updateAuthUI();
+                    loadPosts();
+                    setupArticleBlocks(true);
+                } else if (event === 'SIGNED_OUT') {
+                    currentUser = null;
+                    console.log('🚪 User signed out');
+                    updateAuthUI();
+                    loadPosts();
+                    setupArticleBlocks(true);
+                }
+            });
+        }
+    } catch (error) {
+        console.error('❌ Auth setup error:', error);
     }
+}
 
-    addComment(text) {
-      const comment = { id: Date.now() + Math.random(), text };
-      this.comments.push(comment);
-      this.saveComments();
-      this.renderComments();
+function updateAuthUI() {
+    const authContainer = document.getElementById('auth-container');
+    if (!authContainer) return;
+    if (currentUser) {
+        authContainer.innerHTML = `
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-white small">Welcome, ${getDisplayName(currentUser)}</span>
+                <button class="btn btn-outline-light btn-sm" onclick="signOut()">Sign Out</button>
+            </div>
+        `;
+                } else {
+        authContainer.innerHTML = `
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-primary btn-sm" onclick="showSignInModal()">Sign In</button>
+                <button class="btn btn-outline-light btn-sm" onclick="showSignUpModal()">Sign Up</button>
+            </div>
+        `;
     }
+}
 
-    editComment(id, newText) {
-      const comment = this.comments.find(c => c.id === id);
-      if (comment) {
-        comment.text = newText;
-        this.saveComments();
-        this.renderComments();
-      }
+// Modal functions
+function showSignInModal() {
+    const modalHTML = `
+        <div class="modal fade" id="signInModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Sign In to SoftSpace</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="signin-form">
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                                <input type="password" class="form-control" name="password" required>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="handleSignIn()">Sign In</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    const existingModal = document.getElementById('signInModal');
+    if (existingModal) existingModal.remove();
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    const modal = document.getElementById('signInModal');
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    modal.addEventListener('hidden.bs.modal', () => modal.remove());
+}
+
+function showSignUpModal() {
+    const modalHTML = `
+        <div class="modal fade" id="signUpModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Join SoftSpace</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="signup-form">
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                                <input type="password" class="form-control" name="password" minlength="6" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Confirm Password</label>
+                                <input type="password" class="form-control" name="confirmPassword" minlength="6" required>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="handleSignUp()">Create Account</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    const existingModal = document.getElementById('signUpModal');
+    if (existingModal) existingModal.remove();
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    const modal = document.getElementById('signUpModal');
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    modal.addEventListener('hidden.bs.modal', () => modal.remove());
+}
+
+// Auth handlers
+async function handleSignIn() {
+    const form = document.getElementById('signin-form');
+    const formData = new FormData(form);
+    const email = formData.get('email');
+    const password = formData.get('password');
+    try {
+        console.log('🔐 Attempting sign in...');
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        const modal = document.getElementById('signInModal');
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal.hide();
+        alert('✅ Successfully signed in!');
+    } catch (error) {
+        console.error('❌ Sign in failed:', error);
+        alert('❌ Sign in failed: ' + error.message);
     }
+}
 
-    deleteComment(id) {
-      this.comments = this.comments.filter(c => c.id !== id);
-      this.saveComments();
-      this.renderComments();
+async function handleSignUp() {
+    const form = document.getElementById('signup-form');
+    const formData = new FormData(form);
+    const email = formData.get('email');
+    const password = formData.get('password');
+    const confirmPassword = formData.get('confirmPassword');
+    if (password !== confirmPassword) {
+        alert('❌ Passwords do not match!');
+            return;
+        }
+    try {
+        console.log('📝 Attempting sign up...');
+        const { error } = await supabaseClient.auth.signUp({ email, password });
+        if (error) throw error;
+        const modal = document.getElementById('signUpModal');
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal.hide();
+        alert('✅ Account created! If email confirmation is enabled, check your inbox.');
+    } catch (error) {
+        console.error('❌ Sign up failed:', error);
+        alert('❌ Sign up failed: ' + error.message);
     }
+}
 
-    saveComments() {
-      try {
-        localStorage.setItem(this.commentsKey, JSON.stringify(this.comments));
-      } catch (e) {
-        console.warn('Could not save comments:', e);
-      }
+async function signOut() {
+    try {
+        await supabaseClient.auth.signOut();
+        alert('✅ Signed out');
+    } catch (error) {
+        console.error('❌ Sign out failed:', error);
+        alert('❌ Sign out failed: ' + error.message);
     }
+}
 
-    renderComments() {
-      this.commentsContainer.innerHTML = "";
+// Posts functions
+async function loadPosts() {
+    try {
+        console.log('📥 Loading posts...');
+        const { data, error } = await supabaseClient
+            .from('posts')
+            .select(`
+                *,
+                comments (
+                    *,
+                    replies (*)
+                )
+            `)
+            .not('content', 'ilike', 'Article:%')
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        posts = data || [];
+        console.log('✅ Posts loaded:', posts.length);
+        renderPosts();
+    } catch (error) {
+        console.error('❌ Error loading posts:', error);
+        posts = [];
+        renderPosts();
+    }
+}
 
-      this.comments.forEach((comment) => {
-        const div = document.createElement("div");
-        div.classList.add("comment");
-        div.dataset.id = comment.id;
-        div.style.cssText = `
-          background: white;
-          border-radius: 12px;
-          padding: 16px;
-          margin-bottom: 12px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-          border: 1px solid #f0f0f0;
-          position: relative;
+function renderPosts() {
+    const postsContainer = document.getElementById('posts-container');
+    if (!postsContainer) {
+        console.log('❌ Posts container not found');
+            return;
+        }
+    if (posts.length === 0) {
+        postsContainer.innerHTML = `
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-feather fa-2x mb-3"></i>
+                <p>No posts yet. Be the first to share your thoughts!</p>
+            </div>
         `;
+        return;
+    }
+    postsContainer.innerHTML = posts.map(post => `
+        <div class="post-item card mb-4" data-post-id="${post.id}">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="card-subtitle mb-1 text-muted">${post.author_name}</h6>
+                        <small class="text-muted">${new Date(post.created_at).toLocaleString()}</small>
+                    </div>
+                    ${currentUser && currentUser.id === post.author_id ? 
+                        `<div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-warning" onclick="showPostEditForm(${post.id})">Edit</button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deletePost(${post.id})">Delete</button>
+                        </div>` : 
+                        ''
+                    }
+                </div>
+                <div class="post-content" id="post-content-${post.id}">${post.content}</div>
+                <div class="post-actions d-flex gap-2 mb-3 mt-2">
+                    <button class="btn btn-sm btn-outline-primary" onclick="togglePostLike(${post.id})">
+                        <i class="far fa-heart"></i> Like (${post.likes || 0})
+                    </button>
+                </div>
+                <div class="comments-section">
+                    <h6 class="mb-3">Comments (${post.comments ? post.comments.length : 0})</h6>
+                    <div class="comment-input-container mb-3">
+                        <div class="input-group">
+                            <input type="text" class="form-control comment-input" placeholder="Write a comment..." maxlength="300">
+                            <button class="btn btn-primary btn-sm" onclick="addComment(${post.id}, this.previousElementSibling)">Post</button>
+                        </div>
+                    </div>
+                    <div class="comments-list">
+                        ${(post.comments || []).map(comment => `
+                            <div class="comment-item mb-3 p-3 bg-light rounded" data-comment-id="${comment.id}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <strong class="comment-author">${comment.author_name}</strong>
+                                            <small class="text-muted">${new Date(comment.created_at).toLocaleString()}</small>
+                                        </div>
+                                        <div class="comment-content">${comment.content}</div>
+                                        <div class="comment-actions d-flex gap-2 mt-2">
+                                            <button class="btn btn-sm btn-outline-primary" onclick="toggleCommentLike(${comment.id})">
+                                                <i class="far fa-heart"></i> Like (${comment.likes || 0})
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary" onclick="showReplyForm(${comment.id})">Reply</button>
+                                            ${currentUser && currentUser.id === comment.author_id ? 
+                                                `<button class="btn btn-sm btn-outline-warning" onclick="showCommentEditForm(${comment.id})">Edit</button>
+                                                 <button class="btn btn-sm btn-outline-danger" onclick="deleteComment(${comment.id})">Delete</button>` : 
+                                                ''
+                                            }
+                                        </div>
+                                        <div class="reply-form mt-2" id="reply-form-${comment.id}" style="display: none;">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control reply-input" placeholder="Write a reply..." maxlength="200">
+                                                <button class="btn btn-primary btn-sm" onclick="addReply(${comment.id}, ${post.id}, this.previousElementSibling)">Reply</button>
+                                            </div>
+                                        </div>
+                                        ${(comment.replies || []).length > 0 ? `
+                                            <div class="replies-list mt-2 ms-4">
+                                                ${comment.replies.map(reply => `
+                                                    <div class="reply-item mb-2 p-2 bg-white rounded border" data-reply-id="${reply.id}">
+                                                        <div class="d-flex justify-content-between align-items-start">
+                                                            <div>
+                                                                <div class="d-flex align-items-center gap-2 mb-1">
+                                                                    <strong class="reply-author">${reply.author_name}</strong>
+                                                                    <small class="text-muted">${new Date(reply.created_at).toLocaleString()}</small>
+                                                                </div>
+                                                                <div class="reply-content" id="reply-content-${reply.id}">${reply.content}</div>
+                                                            </div>
+                                                            ${currentUser && currentUser.id === reply.author_id ? `
+                                                                <div class="d-flex gap-2 ms-2">
+                                                                    <button class="btn btn-sm btn-outline-warning" onclick="showReplyEditForm(${reply.id})">Edit</button>
+                                                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteReply(${reply.id})">Delete</button>
+                                                                </div>
+                                                            ` : ''}
+                                                        </div>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
 
-        // Text
-        const textP = document.createElement("p");
-        textP.textContent = comment.text;
-        textP.style.cssText = `
-          color: #2d3748;
-          line-height: 1.6;
-          font-size: 14px;
-          margin: 0 0 12px 0;
-          padding-right: 60px;
-        `;
+// Post edit
+function showPostEditForm(postId) {
+    const contentDiv = document.getElementById(`post-content-${postId}`);
+    const currentContent = contentDiv.textContent;
+    contentDiv.innerHTML = `
+        <div class="post-edit-form">
+            <textarea class="form-control mb-2" rows="3">${currentContent}</textarea>
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary btn-sm" onclick="savePostEdit(${postId}, this.previousElementSibling)">Save</button>
+                <button class="btn btn-secondary btn-sm" onclick="cancelPostEdit(${postId}, '${currentContent.replace(/'/g, "&#39;")}')">Cancel</button>
+            </div>
+        </div>
+    `;
+}
 
-        // Actions
-        const actionsDiv = document.createElement("div");
-        actionsDiv.classList.add("comment-actions");
-        actionsDiv.style.cssText = `
-          position: absolute;
-          top: 12px;
-          right: 12px;
-          display: flex;
-          gap: 4px;
-        `;
+async function savePostEdit(postId, textarea) {
+    // Fallback: find textarea if not passed
+    if (!textarea) {
+        textarea = document.querySelector(`#post-content-${postId} textarea`);
+    }
+    if (!textarea) {
+        console.error('Edit textarea not found for post', postId);
+        alert('Unable to save. Please try again.');
+        return;
+    }
+    const newContent = textarea.value.trim();
+    if (!newContent) return;
+    try {
+        const { error } = await supabaseClient
+            .from('posts')
+            .update({ content: newContent })
+            .eq('id', postId);
+        if (error) throw error;
+        loadPosts();
+    } catch (error) {
+        console.error('❌ Error updating post:', error);
+        alert('❌ Failed to update post: ' + error.message);
+    }
+}
 
-        // More button
-        const moreBtn = document.createElement("button");
-        moreBtn.textContent = "⋮";
-        moreBtn.classList.add("more-btn");
-        moreBtn.style.cssText = `
-          background: rgba(74, 85, 104, 0.1);
-          border: none;
-          border-radius: 6px;
-          padding: 4px 8px;
-          color: #4a5568;
-          font-size: 14px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        `;
+function cancelPostEdit(postId, originalContent) {
+    const contentDiv = document.getElementById(`post-content-${postId}`);
+    contentDiv.textContent = originalContent;
+}
 
-        // Menu
-        const menuDiv = document.createElement("div");
-        menuDiv.classList.add("menu-div");
-        menuDiv.style.cssText = `
-          display: none;
-          position: absolute;
-          top: 100%;
-          right: 0;
-          background: white;
-          border: 1px solid #e2e8f0;
-          border-radius: 8px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-          z-index: 100;
-          overflow: hidden;
-        `;
+// Reply edit/delete
+function showReplyEditForm(replyId) {
+    const contentDiv = document.getElementById(`reply-content-${replyId}`);
+    const currentContent = contentDiv.textContent;
+    contentDiv.innerHTML = `
+        <div class="reply-edit-form">
+            <textarea class="form-control mb-2" rows="2">${currentContent}</textarea>
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary btn-sm" onclick="saveReplyEdit(${replyId}, this.previousElementSibling)">Save</button>
+                <button class="btn btn-secondary btn-sm" onclick="cancelReplyEdit(${replyId}, '${currentContent.replace(/'/g, "&#39;")}')">Cancel</button>
+            </div>
+        </div>
+    `;
+}
 
-        const menuButtonsWrapper = document.createElement("div");
-        menuButtonsWrapper.classList.add("menu-buttons-wrapper");
-        menuButtonsWrapper.style.cssText = `
-          display: flex;
-          flex-direction: column;
-        `;
+async function saveReplyEdit(replyId, textarea) {
+    if (!textarea) {
+        textarea = document.querySelector(`#reply-content-${replyId} textarea`);
+    }
+    if (!textarea) {
+        console.error('Edit textarea not found for reply', replyId);
+        alert('Unable to save. Please try again.');
+        return;
+    }
+    const newContent = textarea.value.trim();
+    if (!newContent) return;
+    try {
+        const { error } = await supabaseClient
+            .from('replies')
+            .update({ content: newContent })
+            .eq('id', replyId);
+        if (error) throw error;
+        loadPosts();
+        await setupArticleBlocks(true);
+    } catch (error) {
+        console.error('❌ Error updating reply:', error);
+        alert('❌ Failed to update reply: ' + error.message);
+    }
+}
 
-        const editBtn = document.createElement("button");
-        editBtn.textContent = "Edit";
-        editBtn.classList.add("edit-btn");
-        editBtn.style.cssText = `
-          background: none;
-          border: none;
-          padding: 8px 16px;
-          color: #4a5568;
-          font-size: 12px;
-          cursor: pointer;
-          text-align: left;
-          transition: background 0.2s ease;
-        `;
+function cancelReplyEdit(replyId, originalContent) {
+    const contentDiv = document.getElementById(`reply-content-${replyId}`);
+    contentDiv.textContent = originalContent;
+}
 
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "Delete";
-        deleteBtn.classList.add("delete-btn");
-        deleteBtn.style.cssText = `
-          background: none;
-          border: none;
-          padding: 8px 16px;
-          color: #e53e3e;
-          font-size: 12px;
-          cursor: pointer;
-          text-align: left;
-          transition: background 0.2s ease;
-          border-top: 1px solid #f7fafc;
-        `;
+async function deleteReply(replyId) {
+    if (!confirm('Delete this reply?')) return;
+    try {
+            const { error } = await supabaseClient
+            .from('replies')
+            .delete()
+            .eq('id', replyId);
+        if (error) throw error;
+        loadPosts();
+        await setupArticleBlocks(true);
+    } catch (error) {
+        console.error('❌ Error deleting reply:', error);
+        alert('❌ Failed to delete reply: ' + error.message);
+    }
+}
 
-        // Add hover effects
-        editBtn.addEventListener('mouseenter', () => {
-          editBtn.style.background = '#f7fafc';
+// Like/unlike helpers (client-side remembered per browser)
+function isLiked(key) {
+    return localStorage.getItem(key) === '1';
+}
+function setLiked(key, liked) {
+    localStorage.setItem(key, liked ? '1' : '0');
+}
+
+async function togglePostLike(postId) {
+    if (!currentUser) { alert('Please sign in to like posts!'); return; }
+    const key = `like_post_${postId}`;
+    const liked = isLiked(key);
+    const delta = liked ? -1 : 1;
+    try {
+        const { error } = await supabaseClient.rpc('increment_post_likes', {
+            p_post_id: postId,
+            p_delta: delta
         });
-        editBtn.addEventListener('mouseleave', () => {
-          editBtn.style.background = 'none';
-        });
+        if (error) throw error;
+        setLiked(key, !liked);
+        await loadPosts();
+        await setupArticleBlocks(true);
+    } catch (error) {
+        console.error('❌ Error toggling post like:', error);
+    }
+}
 
-        deleteBtn.addEventListener('mouseenter', () => {
-          deleteBtn.style.background = '#fed7d7';
+async function toggleCommentLike(commentId) {
+    if (!currentUser) { alert('Please sign in to like comments!'); return; }
+    const key = `like_comment_${commentId}`;
+    const liked = isLiked(key);
+    const delta = liked ? -1 : 1;
+    try {
+        const { error } = await supabaseClient.rpc('increment_comment_likes', {
+            p_comment_id: commentId,
+            p_delta: delta
         });
-        deleteBtn.addEventListener('mouseleave', () => {
-          deleteBtn.style.background = 'none';
-        });
+        if (error) throw error;
+        setLiked(key, !liked);
+        await loadPosts();
+        await setupArticleBlocks(true);
+    } catch (error) {
+        console.error('❌ Error toggling comment like:', error);
+    }
+}
 
-        moreBtn.addEventListener('mouseenter', () => {
-          moreBtn.style.background = 'rgba(74, 85, 104, 0.2)';
-        });
-        moreBtn.addEventListener('mouseleave', () => {
-          moreBtn.style.background = 'rgba(74, 85, 104, 0.1)';
-        });
+// Comment edit (already existed)
+function showCommentEditForm(commentId) {
+    const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
+    const contentDiv = commentItem.querySelector('.comment-content');
+    const currentContent = contentDiv.textContent;
+    contentDiv.innerHTML = `
+        <div class="comment-edit-form">
+            <textarea class="form-control mb-2" rows="2">${currentContent}</textarea>
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary btn-sm" onclick="saveCommentEdit(${commentId}, this.previousElementSibling)">Save</button>
+                <button class="btn btn-secondary btn-sm" onclick="cancelCommentEdit(${commentId}, '${currentContent.replace(/'/g, "&#39;")}')">Cancel</button>
+            </div>
+        </div>
+    `;
+}
 
-        menuButtonsWrapper.appendChild(editBtn);
-        menuButtonsWrapper.appendChild(deleteBtn);
-        menuDiv.appendChild(menuButtonsWrapper);
+async function saveCommentEdit(commentId, textarea) {
+    if (!textarea) {
+        const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
+        textarea = commentItem && commentItem.querySelector('textarea');
+    }
+    if (!textarea) {
+        console.error('Edit textarea not found for comment', commentId);
+        alert('Unable to save. Please try again.');
+        return;
+    }
+    const newContent = textarea.value.trim();
+    if (!newContent) return;
+    try {
+        const { error } = await supabaseClient
+            .from('comments')
+            .update({ content: newContent })
+            .eq('id', commentId);
+        if (error) throw error;
+        loadPosts();
+        await setupArticleBlocks(true);
+    } catch (error) {
+        console.error('❌ Error updating comment:', error);
+        alert('❌ Failed to update comment: ' + error.message);
+    }
+}
 
-        actionsDiv.appendChild(moreBtn);
-        actionsDiv.appendChild(menuDiv);
-        div.appendChild(textP);
-        div.appendChild(actionsDiv);
+function cancelCommentEdit(commentId, originalContent) {
+    const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
+    const contentDiv = commentItem.querySelector('.comment-content');
+    contentDiv.textContent = originalContent;
+}
 
-        // Toggle menu
-        moreBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          
-          // Close all other menus first
-          this.commentsContainer.querySelectorAll(".menu-div").forEach((otherMenu) => {
-            if (otherMenu !== menuDiv) {
-              otherMenu.style.display = "none";
+// Comments/replies creation & deletion kept as-is
+async function addComment(postId, inputElement) {
+    const content = inputElement.value.trim();
+    if (!content) return;
+    if (!currentUser) { alert('Please sign in to comment!'); return; }
+    try {
+        const { data, error } = await supabaseClient
+            .from('comments')
+            .insert({
+                post_id: postId,
+                content: content,
+                author_name: getDisplayName(currentUser),
+                author_id: currentUser.id
+            })
+            .select()
+            .single();
+        if (error) throw error;
+        inputElement.value = '';
+        loadPosts();
+        await setupArticleBlocks(true);
+    } catch (error) {
+        console.error('❌ Error adding comment:', error);
+        alert('❌ Failed to add comment: ' + error.message);
+    }
+}
+
+async function deleteComment(commentId) {
+    if (!confirm('Are you sure you want to delete this comment?')) return;
+    try {
+        const { error } = await supabaseClient
+            .from('comments')
+            .delete()
+            .eq('id', commentId);
+        if (error) throw error;
+        loadPosts();
+        await setupArticleBlocks(true);
+    } catch (error) {
+        console.error('❌ Error deleting comment:', error);
+        alert('❌ Failed to delete comment: ' + error.message);
+    }
+}
+
+function showReplyForm(commentId) {
+    const replyForm = document.getElementById(`reply-form-${commentId}`);
+    replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+}
+
+async function addReply(commentId, postId, inputElement) {
+    const content = inputElement.value.trim();
+    if (!content) return;
+    if (!currentUser) { alert('Please sign in to reply!'); return; }
+    try {
+        const { data, error } = await supabaseClient
+            .from('replies')
+            .insert({
+                post_id: postId,
+                comment_id: commentId,
+                content: content,
+                author_name: getDisplayName(currentUser),
+                author_id: currentUser.id
+            })
+            .select()
+            .single();
+        if (error) throw error;
+        inputElement.value = '';
+        document.getElementById(`reply-form-${commentId}`).style.display = 'none';
+        loadPosts();
+        await setupArticleBlocks(true);
+    } catch (error) {
+        console.error('❌ Error adding reply:', error);
+        alert('❌ Failed to add reply: ' + error.message);
+    }
+}
+
+// Post actions
+async function createPost(content) {
+    if (!content.trim()) return;
+    try {
+        const { data, error } = await supabaseClient
+            .from('posts')
+            .insert({
+                content: content.trim(),
+                author_name: currentUser ? getDisplayName(currentUser) : 'Anonymous',
+                author_id: currentUser ? currentUser.id : null
+            })
+            .select()
+            .single();
+        if (error) throw error;
+        alert('✅ Post created successfully!');
+        loadPosts();
+    } catch (error) {
+        console.error('❌ Error creating post:', error);
+        alert('❌ Failed to create post: ' + error.message);
+    }
+}
+
+async function deletePost(postId) {
+    if (!confirm('Are you sure you want to delete this post?')) return;
+    try {
+        const { error } = await supabaseClient
+            .from('posts')
+            .delete()
+            .eq('id', postId);
+        if (error) throw error;
+        loadPosts();
+    } catch (error) {
+        console.error('❌ Error deleting post:', error);
+        alert('❌ Failed to delete post: ' + error.message);
+    }
+}
+
+// Article comment blocks support
+async function findOrCreateArticlePost(articleTitle) {
+    // Look for a post with content marker for this article
+    const marker = `Article: ${articleTitle}`;
+    let { data, error } = await supabaseClient
+        .from('posts')
+        .select('*')
+        .eq('content', marker)
+        .limit(1)
+        .maybeSingle();
+    if (error && error.code !== 'PGRST116') throw error;
+    if (data) return data;
+    // Create if missing
+    const insertAuthor = currentUser ? getDisplayName(currentUser) : 'System';
+    const { data: created, error: insErr } = await supabaseClient
+        .from('posts')
+        .insert({ content: marker, author_name: insertAuthor, author_id: currentUser ? currentUser.id : null })
+        .select()
+        .single();
+    if (insErr) throw insErr;
+    return created;
+}
+
+async function loadArticleComments(postId) {
+    const { data, error } = await supabaseClient
+        .from('comments')
+        .select('*, replies(*)')
+        .eq('post_id', postId)
+        .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+}
+
+function renderArticleBlock(container, articlePost, comments) {
+    const commentsContainer = container.querySelector('.comments-container');
+    if (!commentsContainer) return;
+    commentsContainer.innerHTML = (comments || []).map(comment => `
+        <div class="comment-item mb-3 p-3 bg-light rounded" data-comment-id="${comment.id}">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <strong class="comment-author">${comment.author_name}</strong>
+                        <small class="text-muted">${new Date(comment.created_at).toLocaleString()}</small>
+                    </div>
+                    <div class="comment-content">${comment.content}</div>
+                    <div class="comment-actions d-flex gap-2 mt-2">
+                        <button class="btn btn-sm btn-outline-primary" onclick="toggleCommentLike(${comment.id})">
+                            <i class="far fa-heart"></i> Like (${comment.likes || 0})
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="showReplyForm(${comment.id})">Reply</button>
+                        ${currentUser && currentUser.id === comment.author_id ? 
+                            `<button class="btn btn-sm btn-outline-warning" onclick="showCommentEditForm(${comment.id})">Edit</button>
+                             <button class="btn btn-sm btn-outline-danger" onclick="deleteComment(${comment.id})">Delete</button>` : 
+                            ''
+                        }
+                </div>
+                    <div class="reply-form mt-2" id="reply-form-${comment.id}" style="display: none;">
+                        <div class="input-group">
+                            <input type="text" class="form-control reply-input" placeholder="Write a reply..." maxlength="200">
+                            <button class="btn btn-primary btn-sm" onclick="addReply(${comment.id}, ${articlePost.id}, this.previousElementSibling)">Reply</button>
+                    </div>
+                </div>
+                    ${(comment.replies || []).length > 0 ? `
+                        <div class="replies-list mt-2 ms-4">
+                            ${comment.replies.map(reply => `
+                                <div class="reply-item mb-2 p-2 bg-white rounded border" data-reply-id="${reply.id}">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                                <strong class="reply-author">${reply.author_name}</strong>
+                                                <small class="text-muted">${new Date(reply.created_at).toLocaleString()}</small>
+                        </div>
+                                            <div class="reply-content" id="reply-content-${reply.id}">${reply.content}</div>
+                    </div>
+                                        ${currentUser && currentUser.id === reply.author_id ? `
+                                            <div class="d-flex gap-2 ms-2">
+                                                <button class="btn btn-sm btn-outline-warning" onclick="showReplyEditForm(${reply.id})">Edit</button>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="deleteReply(${reply.id})">Delete</button>
+                </div>
+                                        ` : ''}
+                </div>
+                    </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    </div>
+                    </div>
+                </div>
+    `).join('');
+}
+
+async function setupArticleBlocks(forceReload) {
+    const blocks = document.querySelectorAll('.article-comment-block[data-article-title]');
+    if (!blocks.length) return;
+    for (const block of blocks) {
+        try {
+            const title = block.getAttribute('data-article-title');
+            const post = await findOrCreateArticlePost(title);
+            if (forceReload) {
+                // no-op, just ensuring re-render after auth change
             }
-          });
-          
-          menuDiv.style.display = menuDiv.style.display === "none" ? "block" : "none";
-        });
-
-        // Edit
-        editBtn.addEventListener("click", () => {
-          menuDiv.style.display = "none";
-          
-          const editBox = document.createElement("textarea");
-          editBox.value = comment.text;
-          editBox.classList.add("comment-edit-textarea");
-          editBox.style.cssText = `
-            width: 100%;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 10px;
-            font-size: 14px;
-            resize: vertical;
-            min-height: 80px;
-            margin-bottom: 8px;
-            font-family: inherit;
-          `;
-
-          const saveBtn = document.createElement("button");
-          saveBtn.textContent = "Save";
-          saveBtn.classList.add("save-btn");
-          saveBtn.style.cssText = `
-            background: #4299e1;
-            color: white;
-            border: none;
-            border-radius: 16px;
-            padding: 6px 16px;
-            font-size: 12px;
-            cursor: pointer;
-            margin-right: 8px;
-            transition: background 0.2s ease;
-          `;
-
-          const cancelBtn = document.createElement("button");
-          cancelBtn.textContent = "Cancel";
-          cancelBtn.classList.add("cancel-btn");
-          cancelBtn.style.cssText = `
-            background: white;
-            color: #4a5568;
-            border: 1px solid #cbd5e0;
-            border-radius: 16px;
-            padding: 6px 16px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-          `;
-
-          // Hide original text
-          textP.style.display = "none";
-
-          // Create edit actions wrapper
-          const editActionsWrapper = document.createElement("div");
-          editActionsWrapper.classList.add("comment-edit-actions");
-          editActionsWrapper.style.cssText = `
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-          `;
-          editActionsWrapper.appendChild(saveBtn);
-          editActionsWrapper.appendChild(cancelBtn);
-
-          // Insert edit elements
-          div.insertBefore(editBox, actionsDiv);
-          div.insertBefore(editActionsWrapper, actionsDiv);
-
-          // Hide original actions
-          actionsDiv.style.display = "none";
-
-          editBox.focus();
-          editBox.select();
-
-          // Add hover effects
-          saveBtn.addEventListener('mouseenter', () => {
-            saveBtn.style.background = '#3182ce';
-          });
-          saveBtn.addEventListener('mouseleave', () => {
-            saveBtn.style.background = '#4299e1';
-          });
-
-          cancelBtn.addEventListener('mouseenter', () => {
-            cancelBtn.style.background = '#f7fafc';
-            cancelBtn.style.borderColor = '#a0aec0';
-          });
-          cancelBtn.addEventListener('mouseleave', () => {
-            cancelBtn.style.background = 'white';
-            cancelBtn.style.borderColor = '#cbd5e0';
-          });
-
-          editBox.addEventListener('focus', () => {
-            editBox.style.borderColor = '#4299e1';
-            editBox.style.boxShadow = '0 0 0 3px rgba(66, 153, 225, 0.1)';
-          });
-          editBox.addEventListener('blur', () => {
-            editBox.style.borderColor = '#e2e8f0';
-            editBox.style.boxShadow = 'none';
-          });
-
-          saveBtn.addEventListener("click", () => {
-            const newText = editBox.value.trim();
-            if (newText) {
-              this.editComment(comment.id, newText);
-            } else {
-              this.renderComments();
+            const comments = await loadArticleComments(post.id);
+            renderArticleBlock(block, post, comments);
+            const input = block.querySelector('.comment-input');
+            const btn = block.querySelector('.submit-comment-btn');
+            if (btn && input) {
+                btn.onclick = () => addComment(post.id, input);
             }
-          });
-
-          cancelBtn.addEventListener("click", () => {
-            this.renderComments();
-          });
-        });
-
-        // Delete
-        deleteBtn.addEventListener("click", () => {
-          menuDiv.style.display = "none";
-          this.deleteComment(comment.id);
-        });
-
-        this.commentsContainer.appendChild(div);
-      });
+        } catch (e) {
+            console.error('Article block setup error:', e);
+        }
     }
-  }
+}
 
-  // Initialize for all comment sections
-  document.querySelectorAll(".comment-section").forEach((section) => {
-    new CommentSystem(section);
-  });
+// Event listeners
+function setupEventListeners() {
+    const postForm = document.getElementById('post-form');
+    if (postForm) {
+        postForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const content = e.target.querySelector('textarea[name="content"]').value;
+            createPost(content);
+            e.target.reset();
+        });
+    }
+}
 
-});
+// Make functions globally available
+window.showSignInModal = showSignInModal;
+window.showSignUpModal = showSignUpModal;
+window.handleSignIn = handleSignIn;
+window.handleSignUp = handleSignUp;
+window.signOut = signOut;
+window.createPost = createPost;
+window.deletePost = deletePost;
+window.togglePostLike = togglePostLike;
+window.addComment = addComment;
+window.deleteComment = deleteComment;
+window.toggleCommentLike = toggleCommentLike;
+window.showCommentEditForm = showCommentEditForm;
+window.saveCommentEdit = saveCommentEdit;
+window.cancelCommentEdit = cancelCommentEdit;
+window.showReplyForm = showReplyForm;
+window.addReply = addReply;
+window.showPostEditForm = showPostEditForm;
+window.savePostEdit = savePostEdit;
+window.cancelPostEdit = cancelPostEdit;
+window.showReplyEditForm = showReplyEditForm;
+window.saveReplyEdit = saveReplyEdit;
+window.cancelReplyEdit = cancelReplyEdit;
+window.deleteReply = deleteReply;
+window.findOrCreateArticlePost = findOrCreateArticlePost;
+window.loadArticleComments = loadArticleComments;
+window.renderArticleBlock = renderArticleBlock;
+window.setupArticleBlocks = setupArticleBlocks;
+
+// Start the app when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', waitForSupabase);
+} else {
+    waitForSupabase();
+}
+

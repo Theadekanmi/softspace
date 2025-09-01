@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SoftSpace</title>
 
+    <!---SUPABASE LINK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <!-- Bootstrap CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -47,6 +50,9 @@
           <li class="nav-item"><a class="nav-link fw-bold" href="#the-goal">The Goal</a></li>
           <li class="nav-item"><a class="nav-link fw-bold" href="#reach-out">Contact</a></li>
         </ul>
+        <div id="auth-container" class="d-flex align-items-center gap-2">
+          <!-- Auth content will be dynamically loaded here -->
+        </div>
       </div>
     </div>
   </nav>
@@ -210,7 +216,7 @@
 
 <!-- Modal for first Article -->
 <div class="modal fade" id="article1Modal" tabindex="-1" aria-labelledby="article1ModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-dialog modal-fullscreen-md-down modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <!-- Modal Header -->
             <div class="modal-header border-0">
@@ -300,6 +306,21 @@
                     Now wipe those tears, beautiful. You've your best life to live.
                 </p>
             </div>
+            <div class="p-3 border-top">
+              <button class="btn btn-outline-secondary mb-2" data-bs-toggle="collapse" data-bs-target="#comments-article1">View Comments</button>
+              <div id="comments-article1" class="collapse">
+                <div class="article-comment-block" data-article-title="Your Breathing Space – The Woman in The Mirror">
+                  <h6 class="mb-2">Comments</h6>
+                  <div class="comments-scroll" style="max-height:45vh; overflow:auto;">
+                    <div class="comments-container"></div>
+                  </div>
+                  <div class="mt-2 d-flex gap-2">
+                    <input class="form-control comment-input" placeholder="Write a comment..." maxlength="300" />
+                    <button class="btn btn-primary btn-sm submit-comment-btn">Post</button>
+                  </div>
+                </div>
+              </div>
+            </div>
         </div>
     </div>
 </div>
@@ -317,7 +338,7 @@
 
 <!-- Modal for Second Article -->
 <div class="modal fade" id="article2Modal" tabindex="-1" aria-labelledby="article2ModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+  <div class="modal-dialog modal-fullscreen-md-down modal-xl modal-dialog-scrollable">
     <div class="modal-content">
 
       <!-- Modal Header -->
@@ -377,6 +398,21 @@ The time is now. Not when you feel ready. Not when conditions are perfect. Now.
 Because the audacity to begin isn’t about being fearless—it's about being afraid and starting anyway.
         </p>
       </div>
+      <div class="p-3 border-top">
+        <button class="btn btn-outline-secondary mb-2" data-bs-toggle="collapse" data-bs-target="#comments-article2">View Comments</button>
+        <div id="comments-article2" class="collapse">
+          <div class="article-comment-block" data-article-title="Your Breathing Space – The Audacity to Begin">
+            <h6 class="mb-2">Comments</h6>
+            <div class="comments-scroll" style="max-height:45vh; overflow:auto;">
+              <div class="comments-container"></div>
+            </div>
+            <div class="mt-2 d-flex gap-2">
+              <input class="form-control comment-input" placeholder="Write a comment..." maxlength="300" />
+              <button class="btn btn-primary btn-sm submit-comment-btn">Post</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
     </div>
   </div>
@@ -395,7 +431,7 @@ Because the audacity to begin isn’t about being fearless—it's about being af
 
 <!-- Modal for Third Article -->
 <div class="modal fade" id="article3Modal" tabindex="-1" aria-labelledby="article3ModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+  <div class="modal-dialog modal-fullscreen-md-down modal-xl modal-dialog-scrollable">
     <div class="modal-content">
 
       <!-- Modal Header -->
@@ -488,6 +524,21 @@ One authentic connection at a time. It doesn't have to be perfect to be powerful
 Over to you sis, what kind of friend will you choose to be today?
 </p>
       </div>
+      <div class="p-3 border-top">
+        <button class="btn btn-outline-secondary mb-2" data-bs-toggle="collapse" data-bs-target="#comments-article3">View Comments</button>
+        <div id="comments-article3" class="collapse">
+          <div class="article-comment-block" data-article-title="Your Breathing Space – The Unspoken Politics of Female Friendships">
+            <h6 class="mb-2">Comments</h6>
+            <div class="comments-scroll" style="max-height:45vh; overflow:auto;">
+              <div class="comments-container"></div>
+            </div>
+            <div class="mt-2 d-flex gap-2">
+              <input class="form-control comment-input" placeholder="Write a comment..." maxlength="300" />
+              <button class="btn btn-primary btn-sm submit-comment-btn">Post</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
     </div>
   </div>
@@ -504,7 +555,7 @@ Over to you sis, what kind of friend will you choose to be today?
 
 <!-- Modal for Fourth Article -->
 <div class="modal fade" id="article4Modal" tabindex="-1" aria-labelledby="article4ModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+  <div class="modal-dialog modal-fullscreen-md-down modal-xl modal-dialog-scrollable">
     <div class="modal-content">
 
       <!-- Modal Header -->
@@ -562,6 +613,21 @@ Every woman deserves to feel good in her body. Not perfect, not ideal, but good.
 <div class="affirmation"><strong>"Women’s health isn’t just about avoiding illness, it’s about supporting the complex, beautiful, and sometimes challenging realities of our bodies. And that starts with listening when women speak."</strong></div>
 Her voice matters. Her body matters. And the fight for her wellness is worth everything.
 </p>
+      </div>
+      <div class="p-3 border-top">
+        <button class="btn btn-outline-secondary mb-2" data-bs-toggle="collapse" data-bs-target="#comments-article4">View Comments</button>
+        <div id="comments-article4" class="collapse">
+          <div class="article-comment-block" data-article-title="Your Breathing Space – The Female Health Gap – The Shame and Stigma of Reproductive Health">
+            <h6 class="mb-2">Comments</h6>
+            <div class="comments-scroll" style="max-height:45vh; overflow:auto;">
+              <div class="comments-container"></div>
+            </div>
+            <div class="mt-2 d-flex gap-2">
+              <input class="form-control comment-input" placeholder="Write a comment..." maxlength="300" />
+              <button class="btn btn-primary btn-sm submit-comment-btn">Post</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -635,31 +701,19 @@ Her voice matters. Her body matters. And the fight for her wellness is worth eve
           
           <!-- Create New Post Form -->
           <div class="create-post-container mb-4">
-            <form id="createPostForm" class="create-post-form">
+            <form id="post-form" class="create-post-form">
               <div class="mb-3">
-                <input type="text" id="posterName" class="form-control" placeholder="Your name babygirl" maxlength="50">
-              </div>
-              <div class="mb-3">
-                <textarea id="postContent" class="form-control" rows="4" placeholder="Write your insight, tip, or piece of wisdom…" maxlength="1000" required></textarea>
-                <div class="form-text text-end">
-                  <span id="postCharCount">0</span>/2000 characters
-                </div>
+                <textarea name="content" class="form-control" rows="4" placeholder="Write your insight, tip, or piece of wisdom…" maxlength="1000" required></textarea>
               </div>
               <div class="text-end">
                 <button type="submit" class="btn btn-primary btn-create">Create Post</button>
-              </div>
+                </div>
             </form>
-          </div>
+              </div>
 
           <!-- Posts Feed -->
-          <div id="postsFeed" class="posts-feed">
+          <div id="posts-container" class="posts-feed">
             <!-- Posts will be dynamically loaded here -->
-          </div>
-
-          <!-- No Posts Message -->
-          <div id="noPosts" class="text-center text-muted py-4" style="display: flex;">
-            <i class="fas fa-feather fa-2x mb-0"></i>
-            <p>Be the first to share your thoughts!</p>
           </div>
         </div>
       </div>
