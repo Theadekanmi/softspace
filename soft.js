@@ -1,7 +1,7 @@
-// COMPLETE WORKING SOCIAL MEDIA PLATFORM FOR SOFTSPACE
-console.log('🚀 SoftSpace JavaScript Loading...');
+// my social media platform for softspace
+console.log('🚀 softspace js loading...');
 
-// Global variables (idempotent across multiple loads)
+// global stuff
 var supabaseClient;
 var currentUser = window.currentUser || null;
 var posts = window.posts || [];
@@ -20,20 +20,20 @@ function clearAuthHashIfError() {
     }
 }
 
-// Wait for Supabase to be available
+// wait for supabase to load
 function waitForSupabase() {
     if (typeof supabase !== 'undefined') {
-        console.log('✅ Supabase loaded, initializing...');
+        console.log('✅ supabase ready, starting...');
         initializeApp();
     } else {
-        console.log('⏳ Waiting for Supabase...');
+        console.log('⏳ waiting for supabase...');
         setTimeout(waitForSupabase, 100);
     }
 }
 
 function initializeApp() {
     if (window.__softspaceInited) {
-        console.warn('SoftSpace already initialized - skipping duplicate init');
+        console.warn('softspace already started - skipping');
         return;
     }
     const SUPABASE_URL = 'https://rfopqciinmhyecvvulik.supabase.co';
@@ -47,30 +47,30 @@ function initializeApp() {
             storage: window.localStorage
         }
     });
-    console.log('🔧 Supabase client created');
+    console.log('🔧 supabase client ready');
     window.__softspaceInited = true;
 
     clearAuthHashIfError();
     
-    // Initialize everything
+    // start everything
     setupAuth();
     loadPosts();
     setupEventListeners();
     setupArticleBlocks();
     
-    // Ensure auth UI is updated after initialization
+    // make sure auth ui shows up
     setTimeout(() => {
         updateAuthUI();
     }, 100);
 }
 
-// Authentication functions
+// auth stuff
 async function setupAuth() {
     try {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (session) {
             currentUser = session.user;
-            console.log('✅ User already signed in:', getDisplayName(currentUser));
+            console.log('✅ user already logged in:', getDisplayName(currentUser));
             updateAuthUI();
         }
 
@@ -79,13 +79,13 @@ async function setupAuth() {
             supabaseClient.auth.onAuthStateChange((event, session) => {
                 if (event === 'SIGNED_IN') {
                     currentUser = session.user;
-                    console.log('🔐 User signed in:', getDisplayName(currentUser));
+                    console.log('🔐 user logged in:', getDisplayName(currentUser));
                     updateAuthUI();
                     loadPosts();
                     setupArticleBlocks(true);
                 } else if (event === 'SIGNED_OUT') {
                     currentUser = null;
-                    console.log('🚪 User signed out');
+                    console.log('🚪 user logged out');
                     updateAuthUI();
                     loadPosts();
                     setupArticleBlocks(true);
@@ -100,11 +100,11 @@ async function setupAuth() {
 function updateAuthUI() {
     const authContainer = document.getElementById('auth-container');
     if (!authContainer) {
-        console.error('❌ Auth container not found!');
+        console.error('❌ cant find auth container bruh');
         return;
     }
     
-    console.log('🔄 Updating auth UI, currentUser:', currentUser ? 'authenticated' : 'not authenticated');
+    console.log('🔄 updating auth ui, user:', currentUser ? 'logged in' : 'not logged in');
     
     if (currentUser) {
         authContainer.innerHTML = `
@@ -123,7 +123,7 @@ function updateAuthUI() {
     }
 }
 
-// Modal functions
+// modal stuff
 function showSignInModal() {
     const modalHTML = `
         <div class="modal fade" id="signInModal" tabindex="-1">
@@ -204,14 +204,14 @@ function showSignUpModal() {
     modal.addEventListener('hidden.bs.modal', () => modal.remove());
 }
 
-// Auth handlers
+// auth handlers
 async function handleSignIn() {
     const form = document.getElementById('signin-form');
     const formData = new FormData(form);
     const email = formData.get('email');
     const password = formData.get('password');
     try {
-        console.log('🔐 Attempting sign in...');
+        console.log('🔐 trying to sign in...');
         const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) throw error;
         const modal = document.getElementById('signInModal');
@@ -235,12 +235,12 @@ async function handleSignUp() {
             return;
         }
     try {
-        console.log('📝 Attempting sign up...');
+        console.log('📝 trying to sign up...');
         const { error } = await supabaseClient.auth.signUp({ 
             email, 
             password,
             options: {
-                emailRedirectTo: 'https://theadekanmi.github.io/softspace'
+                emailRedirectTo: 'https://theadekanmi.github.io/softspace' // redirect to my site after email verify
             }
         });
         if (error) throw error;
@@ -264,10 +264,10 @@ async function signOut() {
     }
 }
 
-// Posts functions
+// posts stuff
 async function loadPosts() {
     try {
-        console.log('📥 Loading posts...');
+        console.log('📥 loading posts...');
         const { data, error } = await supabaseClient
             .from('posts')
             .select(`
@@ -281,7 +281,7 @@ async function loadPosts() {
             .order('created_at', { ascending: false });
         if (error) throw error;
         posts = data || [];
-        console.log('✅ Posts loaded:', posts.length);
+        console.log('✅ posts loaded:', posts.length);
         renderPosts();
     } catch (error) {
         console.error('❌ Error loading posts:', error);
@@ -293,7 +293,7 @@ async function loadPosts() {
 function renderPosts() {
     const postsContainer = document.getElementById('posts-container');
     if (!postsContainer) {
-        console.log('❌ Posts container not found');
+        console.log('❌ posts container missing');
             return;
         }
     if (posts.length === 0) {
@@ -821,7 +821,7 @@ async function setupArticleBlocks(forceReload) {
     }
 }
 
-// Event listeners
+// event stuff
 function setupEventListeners() {
     const postForm = document.getElementById('post-form');
     if (postForm) {
@@ -834,7 +834,7 @@ function setupEventListeners() {
     }
 }
 
-// Make functions globally available
+// make functions available everywhere
 window.showSignInModal = showSignInModal;
 window.showSignUpModal = showSignUpModal;
 window.handleSignIn = handleSignIn;
@@ -863,7 +863,7 @@ window.loadArticleComments = loadArticleComments;
 window.renderArticleBlock = renderArticleBlock;
 window.setupArticleBlocks = setupArticleBlocks;
 
-// Start the app when DOM is ready
+// start app when page loads
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', waitForSupabase);
 } else {
