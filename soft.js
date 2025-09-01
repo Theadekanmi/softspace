@@ -57,6 +57,11 @@ function initializeApp() {
     loadPosts();
     setupEventListeners();
     setupArticleBlocks();
+    
+    // Ensure auth UI is updated after initialization
+    setTimeout(() => {
+        updateAuthUI();
+    }, 100);
 }
 
 // Authentication functions
@@ -94,7 +99,13 @@ async function setupAuth() {
 
 function updateAuthUI() {
     const authContainer = document.getElementById('auth-container');
-    if (!authContainer) return;
+    if (!authContainer) {
+        console.error('❌ Auth container not found!');
+        return;
+    }
+    
+    console.log('🔄 Updating auth UI, currentUser:', currentUser ? 'authenticated' : 'not authenticated');
+    
     if (currentUser) {
         authContainer.innerHTML = `
             <div class="d-flex align-items-center gap-2">
@@ -102,7 +113,7 @@ function updateAuthUI() {
                 <button class="btn btn-outline-light btn-sm" onclick="signOut()">Sign Out</button>
             </div>
         `;
-                } else {
+    } else {
         authContainer.innerHTML = `
             <div class="d-flex align-items-center gap-2">
                 <button class="btn btn-primary btn-sm" onclick="showSignInModal()">Sign In</button>
