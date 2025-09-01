@@ -1,8 +1,3 @@
--- Comprehensive RLS Fix for SoftSpace
--- Run this in your Supabase SQL Editor
-
--- First, let's check if the user is authenticated when creating posts
--- The issue might be that auth.uid() is not being set properly
 
 -- Drop ALL existing policies to start fresh
 DROP POLICY IF EXISTS "Posts are viewable by everyone" ON posts;

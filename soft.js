@@ -236,7 +236,13 @@ async function handleSignUp() {
         }
     try {
         console.log('📝 Attempting sign up...');
-        const { error } = await supabaseClient.auth.signUp({ email, password });
+        const { error } = await supabaseClient.auth.signUp({ 
+            email, 
+            password,
+            options: {
+                emailRedirectTo: 'https://theadekanmi.github.io/softspace'
+            }
+        });
         if (error) throw error;
         const modal = document.getElementById('signUpModal');
         const bsModal = bootstrap.Modal.getInstance(modal);
